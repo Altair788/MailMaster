@@ -7,6 +7,15 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.13"
+psycopg2-binary = "^2.9.10"
+pillow = "^11.0.0"
+black = "^24.10.0"
+django = "4.2.2"
+crispy-bootstrap4 = "^2024.10"
+django-phonenumber-field = "^8.0.0"
+phonenumbers = "^8.13.47"
+python-dotenv = "^1.0.1"
+redis = "^5.1.1"
 
 
 [build-system]
