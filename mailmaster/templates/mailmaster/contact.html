@@ -1,0 +1,48 @@
+{% extends 'mailmaster/base.html' %}
+
+{% block content %}
+<div class="col-md-4">
+    <div class="card mb-4 box-shadow">
+        <div class="card-body">
+            <p class="card-text">
+                МГУ им. Ломоносова, кластер "Ломоносов", научно - производственная организация,
+                Раменский бульвар 1, г. Москва<br>
+            </p>
+
+        </div>
+    </div>
+</div>
+<div class="col-md-4">
+    <div class="card mb-4 box-shadow">
+        <div class="card-body">
+            <h2>Напишите нам</h2>
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="name">Ваше имя</label>
+                    <input class="form-control mb-2" name="name" id="name" required/>
+                    <small class="form-text text-muted">Введите ваше полное имя.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Ваш email</label>
+                    <input type="email" class="form-control mb-2" name="email" id="email" required/>
+                    <small class="form-text text-muted">Введите действующий адрес электронной почты.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Сообщение</label>
+                    <textarea class="form-control mb-2" name="message" id="message" rows="3" required></textarea>
+                    <small class="form-text text-muted">Опишите ваш вопрос, отзыв.</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary form-control">Отправить</button>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}

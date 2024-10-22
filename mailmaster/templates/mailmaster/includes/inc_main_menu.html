@@ -1,0 +1,23 @@
+<div class="col-sm-4 offset-md-1 py-4">
+    <h4 class="text-white">Меню</h4>
+    <ul class="list-unstyled">
+        <li><a href="{% url 'mailmaster:index' %}" class="text-white">Главная</a></li>
+        <li><a href="{% url 'materials:list' %}" class="text-white">Блог</a></li>
+        <li><a href="{% url 'mailmaster:contact' %}" class="text-white">Контакты</a></li>
+
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'users:profile' %}" style="display:inline;">
+            {% csrf_token %}
+            <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="text-white">Профиль</a>
+        </form>
+        <br>
+        <form method="post" action="{% url 'users:logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="text-white">Выйти</a>
+        </form>
+    {% else %}
+        <li><a class="text-white" href="{% url 'users:login' %}">Войти</a></li>
+        <li><a class="text-white" href="{% url 'users:register' %}">Регистрация</a></li>
+    {% endif %}
+    </ul>
+</div>
