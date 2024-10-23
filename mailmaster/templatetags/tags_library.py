@@ -5,6 +5,7 @@ from django.utils.safestring import mark_safe
 
 register = template.Library()
 
+
 @register.simple_tag
 def current_time(format_string):
     return datetime.datetime.now().strftime(format_string)
@@ -17,5 +18,5 @@ def initial_letter_filter(text, autoescape=True):
         esc = conditional_escape
     else:
         esc = lambda x: x
-    result = '<strong>%s</strong>%s' % (esc(first), esc(other))
+    result = "<strong>%s</strong>%s" % (esc(first), esc(other))
     return mark_safe(result)

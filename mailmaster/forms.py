@@ -1,14 +1,17 @@
 from django import forms
 
-from main.models import Student, Subject
-
 from mailmaster.models import NewsLetter, Client
 
 
 class NewsLetterForm(forms.ModelForm):
     class Meta:
         model = NewsLetter
-        fields = ('start_date', 'end_date', 'period', 'message',)
+        fields = (
+            "start_date",
+            "end_date",
+            "period",
+            "message",
+        )
 
     # def clean_email(self):
     #     cleaned_data = self.cleaned_data.get('email')
@@ -25,4 +28,3 @@ class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = "__all__"
-
