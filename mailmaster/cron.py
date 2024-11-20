@@ -1,62 +1,43 @@
-from django.utils import timezone
 from django.core.mail import send_mail
-from .models import NewsLetter, EmailSendAttempt
-from django.conf import settings
+from django.utils import timezone
+
+from config import settings
+from mailmaster.models import EmailSendAttempt, NewsLetter
 
 
 def send_mailing():
-    print("Запуск функции send_mailing")
     current_datetime = timezone.now()
+    print(f"Текущее время: {current_datetime}")
 
-    # Получаем все активные рассылки, которые нужно отправить
-    newsletters = NewsLetter.objects.filter(
-        start_date__lte=current_datetime,  # Началась или начнется сейчас
-        end_date__gte=current_datetime,  # Заканчивается позже текущего времени
-        is_active=True,
-        status='active'
-    )
-
-    print(f"Найдено рассылок: {newsletters.count()}")
+    newsletters = NewsLetter.objects.filter(is_active=True, status='active')
+    print(f"Найдено активных рассылок: {newsletters.count()}")
 
     for newsletter in newsletters:
-        # Проверяем последнюю попытку рассылки
-        last_attempt = EmailSendAttempt.objects.filter(newsletter=newsletter).order_by('-last_attempt_time').first()
+        print(f"Обработка рассылки: {newsletter.title}")
+        if newsletter.start_date <= current_datetime <= newsletter.end_date:
+            last_attempt = EmailSendAttempt.objects.filter(newsletter=newsletter).order_by('-last_attempt_time').first()
+            print(f"Последняя попытка отправки: {last_attempt}")
 
-        # Если это единоразовая рассылка и она уже отправлялась, пропускаем её
-        if newsletter.period == 'once' and last_attempt:
-            continue
-
-        # Если последняя попытка не найдена, или прошло достаточно времени с последней попытки
-        if last_attempt:
-            time_since_last_attempt = current_datetime - last_attempt.last_attempt_time
-
-            # Пропускаем, если еще не прошло достаточно времени для повторной отправки
-            if (newsletter.period == 'days' and time_since_last_attempt.days < 1) or \
-                    (newsletter.period == 'weeks' and time_since_last_attempt.days < 7) or \
-                    (newsletter.period == 'months' and time_since_last_attempt.days < 30):
+            if (newsletter.period == 'once' and last_attempt) or \
+               (last_attempt and (current_datetime - last_attempt.last_attempt_time).days <
+                (1 if newsletter.period == 'days' else 7 if newsletter.period == 'weeks' else 30)):
+                print("Пропускаем рассылку.")
                 continue
 
-        # Отправляем письма клиентам
-        recipient_list = [client.email for client in newsletter.clients.all()]
+            recipient_list = list(newsletter.clients.values_list('email', flat=True))
+            print(f"Список получателей: {recipient_list}")
 
-        try:
-            send_mail(
-                subject=newsletter.title,
-                message=newsletter.message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=recipient_list,
-                fail_silently=False,
-            )
-            # Записываем успешную попытку
-            EmailSendAttempt.objects.create(
-                newsletter=newsletter,
-                status='success',
-                response='Email sent successfully'
-            )
-        except Exception as e:
-            # Записываем неудачную попытку
-            EmailSendAttempt.objects.create(
-                newsletter=newsletter,
-                status='failed',
-                response=str(e)
-            )
+            if recipient_list:
+                try:
+                    send_mail(
+                        subject=newsletter.title,
+                        message=newsletter.message,
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=recipient_list,
+                        fail_silently=False,
+                    )
+                    EmailSendAttempt.objects.create(newsletter=newsletter, status='success')
+                    print("Рассылка успешно отправлена.")
+                except Exception as e:
+                    EmailSendAttempt.objects.create(newsletter=newsletter, status='failed', response=str(e))
+                    print(f"Ошибка при отправке рассылки: {e}")
