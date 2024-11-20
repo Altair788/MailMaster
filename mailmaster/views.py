@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin,
@@ -46,6 +47,10 @@ class NewsLetterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     form_class = NewsLetterForm
     permission_required = "mailmaster.add_newsletter"
 
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
 
 class NewsLetterUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = NewsLetter
@@ -53,37 +58,33 @@ class NewsLetterUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     form_class = NewsLetterForm
     permission_required = "mailmaster.change_newsletter"
 
+    def get_success_url(self):
+        return reverse("mailmaster:view_newsletter", args=[self.kwargs.get("pk")])
+
+
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-
-        SubjectFormset = inlineformset_factory(
-            NewsLetter, Client, form=ClientForm, extra=1
-        )
-        if self.request.method == "POST":
-            context_data["formset"] = SubjectFormset(
-                self.request.POST, instance=self.object
-            )
-        else:
-            context_data["formset"] = SubjectFormset(instance=self.object)
+        # Получаем всех клиентов для отображения в форме
+        context_data["clients"] = Client.objects.all()
         return context_data
 
-    def form_valid(self, form):
-        formset = self.get_context_data()["formset"]
-        self.object = form.save()
-        if formset.is_valid():
-            formset.instance = self.object
-            formset.save()
 
+    def form_valid(self, form):
+        self.object = form.save()  # Сохраняем основной объект
+        form.save_m2m()  # Сохраняем связи ManyToManyField
         return super().form_valid(form)
 
 
 class NewsLetterDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = NewsLetter
-    success_url = reverse_lazy("mailmaster:view_newsletter")
+    success_url = reverse_lazy("mailmaster:index")
+
+    # def get_success_url(self):
+    #     # Получаем pk удаляемого объекта
+    #     return reverse_lazy("mailmaster:view_newsletter", args=[self.object.pk])
 
     def test_func(self):
         return self.request.user.is_superuser
-
 
 def toggle_activity(request, pk):
     newsletter_item = get_object_or_404(NewsLetter, pk=pk)
@@ -155,7 +156,7 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
 class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
     fields = ["email", "name", "comment"]
-    success_url = reverse_lazy("mailmaster:view_client")
+    success_url = reverse_lazy("mailmaster:index")
 
 
 class ClientUpdateView(LoginRequiredMixin, UpdateView):

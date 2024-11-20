@@ -5,6 +5,23 @@ from users.models import User
 NULLABLE = {"blank": True, "null": True}
 
 
+
+class Client(models.Model):
+    """Представляет класс Клиент"""
+
+    name = models.CharField(max_length=250, verbose_name="ФИО")
+    email = models.EmailField(unique=True, verbose_name="почта")
+    comment = models.TextField(verbose_name="комментарий")
+
+    def __str__(self):
+        return f"{self.name} ({self.email})"
+
+    class Meta:
+        verbose_name = "клиент"
+        verbose_name_plural = "клиенты"
+        ordering = ("email",)
+
+
 class NewsLetter(models.Model):
     """Представляет класс Рассылка"""
 
@@ -25,7 +42,7 @@ class NewsLetter(models.Model):
     )
     start_date = models.DateTimeField(verbose_name="Дата и время отправки рассылки")
     end_date = models.DateTimeField(
-        verbose_name="Дата и время отправки следующей рассылки"
+        verbose_name="Дата и время отправки следующей рассылки", **NULLABLE
     )
     period = models.CharField(
         max_length=10, verbose_name="Периодичность рассылки", choices=PERIOD_CHOICES
@@ -40,17 +57,18 @@ class NewsLetter(models.Model):
     user = models.ForeignKey(
         User, verbose_name="Создатель рассылки", on_delete=models.CASCADE
     )
-    clients = models.ManyToManyField(to="Client", verbose_name="Клиенты")
+    clients = models.ManyToManyField(Client, verbose_name="Клиенты")
     message = models.ForeignKey(
         to="Message", verbose_name="Сообщение для рассылки", on_delete=models.CASCADE
     )
+    is_active = models.BooleanField(default=True, verbose_name='активна')
 
     def __str__(self):
         return (
-            f"Дата и время отправки первой рассылки - {self.start_date}"
-            f"Дата и время отправки следующей рассылки - {self.end_date}"
-            f"Периодичность рассылки - {self.get_period_display()}"
-            f"Статус рассылки - {self.get_status_display()}"
+            f"Рассылка отправлена: {self.start_date}\n"
+            f"Следующая отправка: {self.end_date}\n"
+            f"Периодичность: {self.get_period_display()}\n"
+            f"Статус: {self.get_status_display()}"
         )
 
     class Meta:
@@ -61,21 +79,6 @@ class NewsLetter(models.Model):
             "period",
         )
 
-
-class Client(models.Model):
-    """Представляет класс Клиент"""
-
-    name = models.CharField(max_length=250, verbose_name="ФИО")
-    email = models.EmailField(unique=True, verbose_name="почта")
-    comment = models.TextField(verbose_name="комментарий")
-
-    def __str__(self):
-        return f"{self.name} ({self.email})"
-
-    class Meta:
-        verbose_name = "клиент"
-        verbose_name_plural = "клиенты"
-        ordering = ("email",)
 
 
 class Message(models.Model):
