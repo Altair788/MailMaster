@@ -13,7 +13,7 @@ def send_mailing():
     print(f"Найдено активных рассылок: {newsletters.count()}")
 
     for newsletter in newsletters:
-        print(f"Обработка рассылки: {newsletter.title}")
+        print(f"Обработка рассылки: {newsletter.message.title}")
         if newsletter.start_date <= current_datetime <= newsletter.end_date:
             last_attempt = EmailSendAttempt.objects.filter(newsletter=newsletter).order_by('-last_attempt_time').first()
             print(f"Последняя попытка отправки: {last_attempt}")
@@ -30,8 +30,8 @@ def send_mailing():
             if recipient_list:
                 try:
                     send_mail(
-                        subject=newsletter.title,
-                        message=newsletter.message,
+                        subject=newsletter.message.title,
+                        message=newsletter.message.body,
                         from_email=settings.DEFAULT_FROM_EMAIL,
                         recipient_list=recipient_list,
                         fail_silently=False,
