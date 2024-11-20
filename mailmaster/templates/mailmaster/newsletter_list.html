@@ -1,0 +1,47 @@
+{% extends 'mailmaster/base.html' %}
+{% block content %}
+<div class="col-12 mb-5">
+<!--    {% if perms.mailmaster.add_newsletter %}-->
+    <a class="btn btn-outline-primary" href="{% url 'mailmaster:create_newsletter' %}">Добавить рассылку</a>
+    <a class="btn btn-outline-primary" href="{% url 'mailmaster:create_message' %}">Добавить сообщение</a>
+<!--    {% endif %}-->
+</div>
+{% for object in object_list %}
+<div class="col-md-4">
+    <div class="card mb-4 box-shadow">
+        <div class="card-body">
+            <p class="card-text">
+                {% if object.is_active %}
+                {{ object | title }}
+
+                {% else %}
+                <span class="text-muted">{{ object | title }}</span>
+                {% endif %}
+            </p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+
+                    <a href="{% url 'mailmaster:view_newsletter' object.pk %}"
+                       class="btn btn-sm btn-outline-secondary">View</a>
+
+<!--                    {% if perms.mailmaster.change_newsletter %}-->
+                    <a href="{% url 'mailmaster:update_newsletter' object.pk %}" type="button"
+                       class="btn btn-sm btn-outline-secondary">Edit</a>
+<!--                    {% endif %}-->
+<!--                    {% if user.is_superuser %}-->
+                    <a href="{% url 'mailmaster:delete_newsletter' object.pk %}" type="button"
+                       class="btn btn-sm btn-outline-secondary">Delete</a>
+<!--                    {% endif %}-->
+                </div>
+                {% if object.is_active %}
+                    <a class="btn btn-warning" href="{% url 'mailmaster:toggle_activity' object.pk %}">Деактивировать</a>
+                {% else %}
+                    <a class="btn btn-success" href="{% url 'mailmaster:toggle_activity' object.pk %}">Активировать</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endfor %}
+{% endblock %}

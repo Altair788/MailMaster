@@ -38,7 +38,7 @@ class NewsLetter(models.Model):
     )
 
     user = models.ForeignKey(
-        User, verbose_name="Пользователь рассылки", on_delete=models.CASCADE
+        User, verbose_name="Создатель рассылки", on_delete=models.CASCADE
     )
     clients = models.ManyToManyField(to="Client", verbose_name="Клиенты")
     message = models.ForeignKey(
@@ -88,8 +88,8 @@ class Message(models.Model):
         return f"{self.title}"
 
     class Meta:
-        verbose_name = "письмо"
-        verbose_name_plural = "письма"
+        verbose_name = "сообщение"
+        verbose_name_plural = "сообщения"
         ordering = ("title",)
 
 
@@ -108,8 +108,16 @@ class EmailSendAttempt(models.Model):
     )
     response = models.TextField(verbose_name="ответ почтового сервера", **NULLABLE)
     newsletter = models.ForeignKey(
-        NewsLetter, verbose_name="рассылка", on_delete=models.CASCADE
+        NewsLetter,
+        verbose_name="рассылка",
+        on_delete=models.CASCADE,
+        related_name="attempts",
     )
 
     def __str__(self):
         return f"Попытка рассылки: {self.last_attempt_time} - Статус: {self.get_status_display()} - Ответ: {self.response or 'Нет ответа'}"
+
+    class Meta:
+        verbose_name = "попытка рассылки"
+        verbose_name_plural = "попытка рассылок"
+        ordering = ["-last_attempt_time"]

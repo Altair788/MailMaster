@@ -47,27 +47,28 @@
 </header>
 
 <main role="main">
-
-    <section class="jumbotron text-center" style="height: 150px; padding: 20px 0;">
-        <div class="container">
-            <h1 class="jumbotron-heading">Список рассылок</h1>
-            <a href="tg://resolve?domain=FL_160924_bot" class="btn btn-primary my-2">Перейди в ТГ по вопросам сотрудничества</a>
-            <a href="{% url 'mailmaster:contact' %}" class="btn btn-secondary my-2">Оставить отзыв о сервисе MailMaster</a>
-            </p>
-        </div>
-    </section>
-
-    <div class="album py-5 bg-light">
-        <div class="container">
-
-            <div class="row">
-                {% block content %}
-                {% endblock %}
+    <section class="py-5 text-center container" style="margin-top: 20px;">
+        <div class="row py-lg-5">
+            <div class="col-lg-6 col-md-8 mx-auto">
+                <h1 class="fw-light">MailMaster</h1>
+                <p>
+                    <a href="tg://resolve?domain=FL_160924_bot" class="btn btn-primary my-2">Оформить заявку через
+                        телеграм-бота</a>
+                    <a href="{% url 'mailmaster:contact' %}" class="btn btn-secondary my-2">Оставить отзыв о сервисе
+                        MailMaster</a>
+                </p>
             </div>
         </div>
-    </div>
+
+    </section>
+
+
+    {% block content %}
+    {% endblock %}
+
 
 </main>
+
 
 <footer class="text-muted">
     <div class="container">

@@ -1,0 +1,55 @@
+{% extends 'mailmaster/base.html' %}
+
+{% block content %}
+<div class="col-12">
+    <div class="row">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+
+                    <h3 class="card-title">
+                        Информация рассылки
+                    </h3>
+                </div>
+                <div class="card-body">
+
+                    <table class="table">
+                        <tr>
+                            <td>Данные по рассылке</td>
+                            <td>{{ object }}</td>
+                        </tr>
+                        <tr>
+                            <td>Сообщение</td>
+                            <td>{{ object.message }}</td>
+                        </tr>
+                    </table>
+
+                </div>
+                <div class="card-footer">
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        Клиенты
+                    </h3>
+                </div>
+                <div class="card-body">
+                <ul>
+                    {% for client in clients %}
+                    <li>
+                        {{ client }}
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                </div>
+                <div class="card-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
