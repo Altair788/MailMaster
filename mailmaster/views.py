@@ -9,6 +9,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
+from mailmaster.cron import send_mailing
 from mailmaster.forms import ClientForm, MessageForm, NewsLetterForm
 from mailmaster.models import Client, Message, NewsLetter
 from mailmaster.services import get_newsletter_from_cache
@@ -49,7 +50,12 @@ class NewsLetterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        send_mailing()
+        return response
+
+
+
 
 
 class NewsLetterUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):

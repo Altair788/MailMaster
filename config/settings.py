@@ -31,6 +31,8 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "mailmaster",
     "users",
+    "django_crontab",
+
 ]
 
 MIDDLEWARE = [
@@ -92,7 +94,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "ru-ru"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Moscow"
 
 USE_I18N = True
 
@@ -153,3 +155,9 @@ if CACHE_ENABLED:
 #         },
 #     },
 # }
+
+ # ('*/10 * * * *', 'myapp.cron.send_mailing'),  # Запускать каждые 10 минут
+
+CRONJOBS = [
+    ('* * * * *', 'mailmaster.cron.send_mailing'),  # Запускать каждую минуту
+]
