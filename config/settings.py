@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -32,6 +33,7 @@ INSTALLED_APPS = [
     "mailmaster",
     "users",
     "django_crontab",
+    "django_celery_beat",
 
 ]
 
@@ -128,7 +130,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 LOGIN_URL = "/users/login/"
 
-CACHE_ENABLED = os.getenv("CACHE_ENABLED") == "True"
+CACHE_ENABLED = os.getenv("CACHE_ENABLED") == "False"
 
 if CACHE_ENABLED:
     CACHES = {
@@ -158,6 +160,36 @@ if CACHE_ENABLED:
 
  # ('*/10 * * * *', 'myapp.cron.send_mailing'),  # Запускать каждые 10 минут
 
-CRONJOBS = [
-    ('* * * * *', 'mailmaster.cron.send_mailing'),  # Запускать каждую минуту
-]
+# CRONJOBS = [
+#     ('* * * * *', 'mailmaster.cron.send_mailing'),  # Запускать каждую минуту
+# ]
+
+
+# Настройки для Celery
+
+# URL-адрес брокера сообщений (Например, Redis, который по умолчанию работает на порту 6379)
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+
+# URL-адрес брокера результатов, также Redis
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
+
+# Часовой пояс для работы Celery
+CELERY_TIMEZONE = "UTC"
+
+# Флаг отслеживания выполнения задач
+CELERY_TASK_TRACK_STARTED = True
+
+# Максимальное время на выполнение задачи
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+
+# Настройки для Celery beat
+
+CELERY_BEAT_SCHEDULE = {
+    "task-name": {
+        "task": "mailmaster.tasks.send_mailing",  # Путь к задаче
+        "schedule": timedelta(
+            minutes=1
+        ),  # Расписание выполнения задачи (например, каждые 10 минут)
+    },
+}

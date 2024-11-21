@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from mailmaster.models import NewsLetter
+
+admin.site.register(NewsLetter)

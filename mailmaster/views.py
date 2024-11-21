@@ -9,7 +9,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
-from mailmaster.cron import send_mailing
+from mailmaster.tasks import send_mailing
 from mailmaster.forms import ClientForm, MessageForm, NewsLetterForm
 from mailmaster.models import Client, Message, NewsLetter
 from mailmaster.services import get_newsletter_from_cache
@@ -91,6 +91,10 @@ class NewsLetterDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         return self.request.user.is_superuser
+
+
+
+
 
 def toggle_activity(request, pk):
     newsletter_item = get_object_or_404(NewsLetter, pk=pk)

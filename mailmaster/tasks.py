@@ -1,3 +1,4 @@
+from celery import shared_task
 from django.core.mail import send_mail
 from django.utils import timezone
 
@@ -5,6 +6,7 @@ from config import settings
 from mailmaster.models import EmailSendAttempt, NewsLetter
 
 
+@shared_task
 def send_mailing():
     current_datetime = timezone.now()
     print(f"Текущее время: {current_datetime}")
@@ -14,6 +16,8 @@ def send_mailing():
 
     for newsletter in newsletters:
         print(f"Обработка рассылки: {newsletter.message.title}")
+        print(newsletter.start_date)
+        print(newsletter.end_date)
         if newsletter.start_date <= current_datetime <= newsletter.end_date:
             last_attempt = EmailSendAttempt.objects.filter(newsletter=newsletter).order_by('-last_attempt_time').first()
             print(f"Последняя попытка отправки: {last_attempt}")
