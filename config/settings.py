@@ -2,12 +2,14 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-dot_env = os.path.join(BASE_DIR, ".env")
-load_dotenv(dotenv_path=dot_env)
+# dot_env = os.path.join(BASE_DIR, ".env")
+# load_dotenv(dotenv_path=dot_env)
+load_dotenv(BASE_DIR / ".env", override=True)
 
 
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -141,23 +143,6 @@ if CACHE_ENABLED:
     }
 
 
-#
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#         },
-#     },
-# }
-
  # ('*/10 * * * *', 'myapp.cron.send_mailing'),  # Запускать каждые 10 минут
 
 # CRONJOBS = [
@@ -186,10 +171,41 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 # Настройки для Celery beat
 
 CELERY_BEAT_SCHEDULE = {
-    "task-name": {
-        "task": "mailmaster.tasks.send_mailing",  # Путь к задаче
-        "schedule": timedelta(
-            minutes=1
-        ),  # Расписание выполнения задачи (например, каждые 10 минут)
+    "send-mailing": {
+        "task": "mailmaster.tasks.send_mailing",  # Путь к задаче  # TODO: исправить декоратор в таске
+        "schedule": timedelta(minutes=1),
+        # "schedule": crontab(hour=0, minute=0),
+    },
+    "test-email-sending": {
+        "task": "mailmaster.tasks.test_email_sending",
+        "schedule": timedelta(seconds=10),
+
+    }
+}
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    #  обработчики
+    'handlers': {
+        #  записывает логи в файл
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'mail_master.log',
+        },
+        #  выводит логи в консоль
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'mail_master': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,  # передает сообщения логгера родительским логгерам
+        },
     },
 }
