@@ -5,13 +5,12 @@ from users.models import User
 NULLABLE = {"blank": True, "null": True}
 
 
-
 class Client(models.Model):
     """Представляет класс Клиент"""
 
     name = models.CharField(max_length=250, verbose_name="ФИО")
     email = models.EmailField(unique=True, verbose_name="почта")
-    comment = models.TextField(verbose_name="комментарий")
+    comment = models.TextField(verbose_name="комментарий", blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.email})"
@@ -22,6 +21,7 @@ class Client(models.Model):
         ordering = ("email",)
 
 
+
 class NewsLetter(models.Model):
     """Представляет класс Рассылка"""
 
@@ -30,53 +30,38 @@ class NewsLetter(models.Model):
         ("weeks", "Еженедельная рассылка"),
         ("months", "Ежемесячная рассылка"),
     ]
+
     STATUS_CHOICES = [
-        ("created", "Рассылка создана"),
-        ("active", "Рассылка запущена"),
-        ("closed", "Рассылка завершена"),
+        ("created", "Создана"),
+        ("active", "Запущена"),
+        ("closed", "Завершена"),
     ]
 
-    created_at = models.DateTimeField(
-        auto_now=True, verbose_name="Дата и время создания рассылки"
-    )
-    start_date = models.DateTimeField(verbose_name="Дата и время отправки рассылки")
-    end_date = models.DateTimeField(
-        verbose_name="Дата и время отправки следующей рассылки", **NULLABLE
-    )
-    period = models.CharField(
-        max_length=10, verbose_name="Периодичность рассылки", choices=PERIOD_CHOICES
-    )
-    status = models.CharField(
-        max_length=10,
-        verbose_name="Статус рассылки",
-        choices=STATUS_CHOICES,
-        default="created",
-    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
-    user = models.ForeignKey(
-        User, verbose_name="Создатель рассылки", on_delete=models.CASCADE
-    )
+    start_date = models.DateTimeField(verbose_name="Дата начала рассылки")
+    end_date = models.DateTimeField(verbose_name="Дата окончания рассылки", null=True, blank=True)
+    period = models.CharField(max_length=10, choices=PERIOD_CHOICES, verbose_name="Периодичность")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="created", verbose_name="Статус")
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Создатель")
     clients = models.ManyToManyField(Client, verbose_name="Клиенты")
-    message = models.ForeignKey(
-        to="Message", verbose_name="Сообщение для рассылки", on_delete=models.CASCADE
-    )
-    is_active = models.BooleanField(default=True, verbose_name='активна')
+    message = models.ForeignKey("Message", on_delete=models.CASCADE, verbose_name="Сообщение")
 
+    def update_status(self, new_status):
+        if new_status in dict(self.STATUS_CHOICES):
+            self.status = new_status
+            self.save()
+        else:
+            raise ValueError("Недопустимый статус")
     def __str__(self):
-        return (
-            f"Рассылка отправлена: {self.start_date}\n"
-            f"Следующая отправка: {self.end_date}\n"
-            f"Периодичность: {self.get_period_display()}\n"
-            f"Статус: {self.get_status_display()}"
-        )
+        return f"Рассылка: {self.get_status_display()} - Начало: {self.start_date}"
 
     class Meta:
-        verbose_name = "рассылка"
-        verbose_name_plural = "рассылки"
-        ordering = (
-            "status",
-            "period",
-        )
+        verbose_name = "Рассылка"
+        verbose_name_plural = "Рассылки"
+        ordering = ["-created_at"]
 
 
 
@@ -108,7 +93,7 @@ class EmailSendAttempt(models.Model):
     status = models.CharField(
         max_length=10, verbose_name="статус попытки", choices=STATUS_CHOICES
     )
-    response = models.TextField(verbose_name="ответ почтового сервера", **NULLABLE)
+    response = models.TextField(verbose_name="ответ почтового сервера", blank=True)
     newsletter = models.ForeignKey(
         NewsLetter,
         verbose_name="рассылка",
