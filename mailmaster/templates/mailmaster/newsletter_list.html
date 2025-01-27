@@ -12,8 +12,8 @@
     <div class="row">
         {% for object in object_list %}
         <div class="col-md-4 mb-4">
-            <div class="card h-100 box-shadow">
-                <div class="card-body">
+            <div class="card h-100 box-shadow d-flex flex-column">
+                <div class="card-body flex-grow-1">
                     <h5 class="card-title">
                         {% if object.is_active %}
                         {{ object.start_date }} - {{ object.get_status_display }}
@@ -25,6 +25,8 @@
                         <strong>Периодичность:</strong> {{ object.get_period_display }}<br>
                         <strong>Статус:</strong> {% if object.is_active %} Активна {% else %} Неактивна {% endif %}
                     </p>
+                </div>
+                    <div class="mt-auto p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="btn-group">
                             {% if perms.mailmaster.view_newsletter %}
