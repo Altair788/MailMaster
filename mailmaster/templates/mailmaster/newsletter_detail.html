@@ -1,10 +1,11 @@
 {% extends 'mailmaster/base.html' %}
 
 {% block content %}
-<div class="col-12">
+<div class="container">
+
     <div class="row">
-        <div class="col-6">
-            <div class="card">
+        <div class="col-md-6">
+            <div class="card-mb-4">
                 <div class="card-header">
 
                     <h3 class="card-title">
@@ -12,41 +13,36 @@
                     </h3>
                 </div>
                 <div class="card-body">
-
-                    <table class="table">
+                    <table class="table table-striped">
                         <tr>
-                            <td>Данные по рассылке</td>
+                            <th>Данные по рассылке</th>
                             <td>{{ object }}</td>
                         </tr>
                         <tr>
-                            <td>Сообщение</td>
+                            <th>Сообщение</th>
                             <td>{{ object.message }}</td>
                         </tr>
                     </table>
-
-                </div>
-                <div class="card-footer">
                 </div>
             </div>
         </div>
-        <div class="col-6">
-            <div class="card">
+        <div class="col-md-6">
+            <div class="card-mb-4">
                 <div class="card-header">
                     <h3 class="card-title">
                         Клиенты
                     </h3>
                 </div>
                 <div class="card-body">
-                <ul>
-                    {% for client in clients %}
-                    <li>
-                        {{ client }}
-                    </li>
-                    {% endfor %}
-                </ul>
-
-                </div>
-                <div class="card-footer">
+                    {% if clients %}
+                    <ul class="list-group">
+                        {% for client in clients %}
+                        <li class="list-group-item">{{ client }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">Клиенты не назначены</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
