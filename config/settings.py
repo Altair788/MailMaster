@@ -167,20 +167,27 @@ CELERY_TASK_TRACK_STARTED = True
 # Максимальное время на выполнение задачи
 CELERY_TASK_TIME_LIMIT = 30 * 60
 
+#  чтобы задачи не смешивались с другими проектами
+CELERY_TASK_DEFAULT_QUEUE = 'cw6_queue'
+CELERY_IGNORE_RESULT = True
+#  для безопасности
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
 # Настройки для Celery beat
 
 CELERY_BEAT_SCHEDULE = {
     "send-mailing": {
-        "task": "mailmaster.tasks.send_mailing",  # Путь к задаче  # TODO: исправить декоратор в таске
+        "task": "mailmaster.tasks.send_mailing",
         "schedule": timedelta(minutes=1),
         # "schedule": crontab(hour=0, minute=0),
     },
-    "test-email-sending": {
-        "task": "mailmaster.tasks.test_email_sending",
-        "schedule": timedelta(seconds=10),
-
-    }
+    # "test-email-sending": {
+    #     "task": "mailmaster.tasks.test_email_sending",
+    #     "schedule": timedelta(seconds=10),
+    #
+    # }
 }
 
 
