@@ -13,6 +13,8 @@ from mailmaster.tasks import send_mailing
 from mailmaster.forms import ClientForm, MessageForm, NewsLetterForm
 from mailmaster.models import Client, Message, NewsLetter
 from mailmaster.services import get_newsletter_from_cache
+from django.core.mail import send_mail
+from config import settings
 
 
 @login_required
@@ -55,9 +57,6 @@ class NewsLetterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         return response
 
 
-
-
-
 class NewsLetterUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = NewsLetter
     success_url = reverse_lazy("mailmaster:index")
@@ -67,13 +66,11 @@ class NewsLetterUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     def get_success_url(self):
         return reverse("mailmaster:view_newsletter", args=[self.kwargs.get("pk")])
 
-
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         # Получаем всех клиентов для отображения в форме
         context_data["clients"] = Client.objects.all()
         return context_data
-
 
     def form_valid(self, form):
         self.object = form.save()  # Сохраняем основной объект
@@ -91,9 +88,6 @@ class NewsLetterDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         return self.request.user.is_superuser
-
-
-
 
 
 def toggle_activity(request, pk):
