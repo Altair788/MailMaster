@@ -6,6 +6,8 @@ from django.contrib.auth.mixins import (LoginRequiredMixin,
 from django.forms import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
@@ -28,11 +30,14 @@ def contact(request):
     context = {"title": "Контакты"}
     return render(request, "mailmaster/contact.html", context)
 
-
+@method_decorator(never_cache, name='dispatch')
 class NewsLetterListView(LoginRequiredMixin, ListView):
     model = NewsLetter
-    permission_required = "mailmaster.index"
+    permission_required = "mailmaster.view_newsletter"
+    paginate_by = 3
 
+    def get_queryset(self):
+        return NewsLetter.objects.all().order_by('-created_at')
 
 class NewsLetterDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = NewsLetter
