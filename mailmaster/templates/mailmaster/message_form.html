@@ -1,44 +1,47 @@
 {% extends 'mailmaster/base.html' %}
 {% load crispy_forms_tags %}
+
 {% block content %}
-
-<div class="col-12">
-    <form method="post" enctype="multipart/form-data">
-        <div class="row">
-            <div class="col-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            Создание сообщения
-                        </h3>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <form method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    Создание сообщения
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                {% csrf_token %}
+                                {% crispy form %}
+                                <button type="submit" class="btn btn-primary btn-block mt-3">Сохранить</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        {% csrf_token %}
-<!--                        {{ form.as_p }}-->
-                        {% crispy form %}
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
-
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    Дополнительные настройки
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                {{ formset.management_form }}
+                                {% for form in formset.forms %}
+                                {% crispy form %}
+                                {% if not forloop.last %}
+                                    <hr>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-footer"></div>
                 </div>
-            </div>
-            <div class="col-6">
-                <div class="card">
-                    <div class="card-body">
-                        {{ formset.management_form }}
-                        {% for form in formset.forms %}
-<!--                            {{ form.as_p }}-->
-                        {%  crispy form %}
-                        {% if not forloop.last %}
-                                <hr>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    <div class="card-footer"></div>
-                </div>
-            </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
-
 {% endblock %}
