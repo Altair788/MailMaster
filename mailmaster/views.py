@@ -31,7 +31,7 @@ def contact(request):
 
 class NewsLetterListView(LoginRequiredMixin, ListView):
     model = NewsLetter
-    permission_required = "mailmaster.view_newsletter"
+    permission_required = "mailmaster.index"
 
 
 class NewsLetterDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
