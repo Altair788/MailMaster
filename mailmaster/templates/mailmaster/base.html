@@ -49,15 +49,28 @@
 </header>
 
 <main role="main">
-    <section class="py-5 text-center container" style="margin-top: 20px;">
+    <!-- Блок для отображения сообщений -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Конец блока сообщений -->
+    <section class="py-1 text-center container" style="margin-top: 20px;">
         <div class="row py-lg-5">
             <div class="col-lg-6 col-md-8 mx-auto">
                 <h1 class="fw-light">MailMaster</h1>
                 <p>
-                    <a href="tg://resolve?domain=FL_160924_bot" class="btn btn-primary my-2">Оформить заявку через
-                        телеграм-бота</a>
-                    <a href="{% url 'mailmaster:contact' %}" class="btn btn-secondary my-2">Оставить отзыв о сервисе
-                        MailMaster</a>
+                    <a href="tg://resolve?domain=FL_160924_bot" class="btn btn-primary my-2">Оформить заявку на
+                        подключение</a>
+                    <a href="{% url 'mailmaster:contact' %}" class="btn btn-secondary my-2">Оставить отзыв о сервисе</a>
                 </p>
             </div>
         </div>
@@ -75,7 +88,7 @@
 <footer class="text-muted">
     <div class="container">
         <p class="float-right">
-            <a href="#">Back to top</a>
+            <a href="{% url 'mailmaster:index' %}" class="btn btn-secondary my-2">На главную</a>
         </p>
         <p>&copy; 2024 - {% now 'Y' %}</p>
         <p>Текущее время: {% current_time "%Y-%m-%d %H:%M:%S" %}</p>
