@@ -8,17 +8,18 @@ from mailmaster.views import (MessageCreateView, MessageDeleteView,
                               NewsLetterDeleteView, NewsLetterDetailView,
                               NewsLetterListView, NewsLetterUpdateView,
                               contact, ClientCreateView, ClientListView, ClientDetailView, ClientUpdateView,
-                              ClientDeleteView, toggle_activity)
+                              ClientDeleteView, toggle_activity, toggle_newsletter_status)
 
 app_name = MailmasterConfig.name
 
 urlpatterns = [
-    path("", (NewsLetterListView.as_view()), name="index"),
+    path("", NewsLetterListView.as_view(), name="index"),
     path("contact/", contact, name="contact"),
     path("view/<int:pk>/", NewsLetterDetailView.as_view(), name="view_newsletter"),
     path("create/", NewsLetterCreateView.as_view(), name="create_newsletter"),
     path("edit/<int:pk>/", NewsLetterUpdateView.as_view(), name="update_newsletter"),
     path("delete/<int:pk>/", NewsLetterDeleteView.as_view(), name="delete_newsletter"),
+    path("toggle/<int:pk>/", toggle_newsletter_status, name="toggle_newsletter_status"),
 
     path("message/", cache_page(5)(MessageListView.as_view()), name="message_list"),
     path("create/message/", MessageCreateView.as_view(), name="create_message"),
