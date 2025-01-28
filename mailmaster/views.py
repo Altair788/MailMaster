@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin,
                                         UserPassesTestMixin)
@@ -30,6 +30,7 @@ def contact(request):
     context = {"title": "Контакты"}
     return render(request, "mailmaster/contact.html", context)
 
+
 @method_decorator(never_cache, name='dispatch')
 class NewsLetterListView(LoginRequiredMixin, ListView):
     model = NewsLetter
@@ -38,6 +39,7 @@ class NewsLetterListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return NewsLetter.objects.all().order_by('-created_at')
+
 
 class NewsLetterDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = NewsLetter
@@ -78,8 +80,10 @@ class NewsLetterUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
         return context_data
 
     def form_valid(self, form):
-        self.object = form.save()  # Сохраняем основной объект
-        form.save_m2m()  # Сохраняем связи ManyToManyField
+        newsletter = form.save(commit=False)
+        newsletter.user = self.request.user
+        newsletter.save()
+        form.save_m2m()
         return super().form_valid(form)
 
 
@@ -106,6 +110,41 @@ def toggle_activity(request, pk):
 
     return redirect(reverse("mailmaster:index"))
 
+#
+# @login_required
+# @permission_required('mailmaster.change_newsletter', raise_exception=True)
+# def toggle_newsletter_status(request, pk):
+#     newsletter = get_object_or_404(NewsLetter, pk=pk)
+#
+#     if newsletter.status == 'active':
+#         newsletter.status = 'paused'
+#         messages.success(request, f"Рассылка '{newsletter}' приостановлена.")
+#     elif newsletter.status == 'paused':
+#         newsletter.status = 'active'
+#         messages.success(request, f"Рассылка '{newsletter}' возобновлена.")
+#     else:
+#         messages.error(request, f"Невозможно изменить статус рассылки '{newsletter}'.")
+#     newsletter.save()
+#     return redirect('mailmaster:index')
+
+@login_required
+@permission_required('mailmaster.change_newsletter', raise_exception=True)
+def toggle_newsletter_status(request, pk):
+    newsletter = get_object_or_404(NewsLetter, pk=pk)
+
+    if newsletter.status == 'active':
+        newsletter.status = 'paused'
+        messages.warning(request, f"Рассылка '{newsletter.message.title}' приостановлена. "
+                                  f"Следующая отправка была запланирована на {newsletter.start_date.strftime('%d.%m.%Y %H:%M')}.")
+    elif newsletter.status == 'paused':
+        newsletter.status = 'active'
+        messages.success(request, f"Рассылка '{newsletter.message.title}' возобновлена. "
+                                  f"Следующая отправка запланирована на {newsletter.start_date.strftime('%d.%m.%Y %H:%M')}.")
+    else:
+        messages.error(request, f"Невозможно изменить статус рассылки '{newsletter.message.title}'. "
+                                f"Текущий статус: {newsletter.get_status_display()}.")
+    newsletter.save()
+    return redirect('mailmaster:index')
 
 #  CRUD for message
 
