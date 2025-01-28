@@ -19,12 +19,17 @@
                             <td>{{ object }}</td>
                         </tr>
                         <tr>
+                            <th>Тема письма</th>
+                            <td>{{ object.message.title }}</td>
+                        </tr>
+                        <tr>
                             <th>Сообщение</th>
-                            <td>{{ object.message }}</td>
+                            <td>{{ object.message.body }}</td>
                         </tr>
                     </table>
                 </div>
             </div>
+            <a href="{% url 'mailmaster:index' %}" class="btn btn-secondary">Назад</a>
         </div>
         <div class="col-md-6">
             <div class="card-mb-4">
