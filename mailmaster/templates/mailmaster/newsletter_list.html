@@ -1,6 +1,17 @@
 {% extends 'mailmaster/base.html' %}
 
 {% block content %}
+<style>
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; /* Добавляет отступ между кнопками */
+    }
+    .btn-group .btn {
+        width: 100%; /* Растягивает кнопки на всю ширину группы */
+    }
+</style>
+
 <div class="container">
     <div class="col-12 mb-5">
         <h1 class="mb-4" `>Список рассылок</h1>
@@ -26,28 +37,49 @@
                         <strong>Статус:</strong> {% if object.is_active %} Активна {% else %} Неактивна {% endif %}
                     </p>
                 </div>
-                    <div class="mt-auto p-3">
+                <div class="mt-auto p-3">
                     <div class="d-flex justify-content-between align-items-center">
+<!--                        &lt;!&ndash; Отладочная информация &ndash;&gt;-->
+<!--                        <div class="debug-info" style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px;">-->
+<!--                            <p>Debug: User permissions: {{ perms.mailmaster }}</p>-->
+<!--                            <p>Debug: Newsletter status: {{ object.status }}</p>-->
+<!--                            <p>Debug: Is active: {{ object.is_active }}</p>-->
+<!--                            <p>Debug: Is superuser: {{ user.is_superuser }}</p>-->
+<!--                        </div>-->
+<!--                        &lt;!&ndash; Конец отладочной информации &ndash;&gt;-->
                         <div class="btn-group">
                             {% if perms.mailmaster.view_newsletter %}
                             <a href="{% url 'mailmaster:view_newsletter' object.pk %}"
-                               class="btn btn-sm btn-outline-secondary">View</a>
+                               class="btn btn-sm btn-info">Просмотреть</a>
                             {% endif %}
+
                             {% if perms.mailmaster.change_newsletter %}
                             <a href="{% url 'mailmaster:update_newsletter' object.pk %}" type="button"
-                               class="btn btn-sm btn-outline-secondary">Edit</a>
+                               class="btn btn-sm btn-secondary">Редактировать</a>
+
+                            {% if object.status == 'active' or object.status == 'created' %}
+                            <a class="btn btn-warning" href="{% url 'mailmaster:toggle_newsletter_status' object.pk %}">Приостановить</a>
+                            {% elif object.status == 'paused' %}
+                            <a class="btn btn-success" href="{% url 'mailmaster:toggle_newsletter_status' object.pk %}">Возобновить</a>
                             {% endif %}
+
+                            <a class="btn btn-secondary" href="">Отправить сейчас</a>
+                            <a class="btn btn-secondary" href="">Изменить расписание</a>
+                            <a class="btn btn-outline-primary" href="">Дублировать</a>
+                            {% endif %}
+
                             {% if user.is_superuser %}
                             <a href="{% url 'mailmaster:delete_newsletter' object.pk %}" type="button"
-                               class="btn btn-sm btn-outline-secondary">Delete</a>
+                               class="btn btn-sm btn-danger">Удалить</a>
+                            <a class="btn btn-dark" href="">Архивировать</a>
                             {% endif %}
                         </div>
-                        {% if object.is_active %}
-                        <a class="btn btn-warning" href="{% url 'mailmaster:toggle_activity' object.pk %}">Деактивировать</a>
-                        {% else %}
-                        <a class="btn btn-success"
-                           href="{% url 'mailmaster:toggle_activity' object.pk %}">Активировать</a>
-                        {% endif %}
+                        <!--                        {% if object.is_active %}-->
+                        <!--                        <a class="btn btn-warning" href="{% url 'mailmaster:toggle_activity' object.pk %}">Деактивировать</a>-->
+                        <!--                        {% else %}-->
+                        <!--                        <a class="btn btn-success"-->
+                        <!--                           href="{% url 'mailmaster:toggle_activity' object.pk %}">Активировать</a>-->
+                        <!--                        {% endif %}-->
                     </div>
                 </div>
             </div>
