@@ -34,7 +34,7 @@ def contact(request):
 #  CRUD для рассылок
 
 @method_decorator(never_cache, name='dispatch')
-class NewsLetterListView(LoginRequiredMixin, ListView):
+class NewsLetterListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = NewsLetter
     permission_required = "mailmaster.view_newsletter"
     paginate_by = 3
@@ -185,33 +185,49 @@ class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user.is_superuser
 
 
-class MessageListView(LoginRequiredMixin, ListView):
+class MessageListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Message
     permission_required = "mailmaster.view_message"
 
 
 #  CRUD for client
 
-class ClientListView(LoginRequiredMixin, ListView):
+class ClientListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Client
+    permission_required = "mailmaster.view_client"
 
 
-class ClientDetailView(LoginRequiredMixin, DetailView):
+class ClientDetailView(LoginRequiredMixin, PermissionRequiredMixin,  DetailView):
     model = Client
+    permission_required = "mailmaster.view_client"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Получаем все рассылки, связанные с текущим сообщением (обратная связь через ForeignKey)
+        context['newsletters'] = NewsLetter.objects.filter(clients=self.object)
+        return context
 
 
-class ClientCreateView(LoginRequiredMixin, CreateView):
+
+
+class ClientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Client
     fields = ["email", "name", "comment"]
     success_url = reverse_lazy("mailmaster:index")
+    permission_required = "mailmaster.add_client"
 
 
-class ClientUpdateView(LoginRequiredMixin, UpdateView):
+class ClientUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Client
     fields = ["email", "name", "comment"]
-    success_url = reverse_lazy("mailmaster:view_client")
+    success_url = reverse_lazy("mailmaster:client_list")
+    permission_required = "mailmaster.change_client"
 
 
-class ClientDeleteView(LoginRequiredMixin, DeleteView):
+class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Client
-    success_url = reverse_lazy("mailmaster:view_client")
+    success_url = reverse_lazy("mailmaster:client_list")
+    permission_required = "mailmaster.view_client"
+
+    def test_func(self):
+        return self.request.user.is_superuser
