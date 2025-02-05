@@ -28,14 +28,6 @@
                 </div>
                 <div class="mt-auto p-3">
                     <div class="d-flex justify-content-between align-items-center">
-<!--                        &lt;!&ndash; Отладочная информация &ndash;&gt;-->
-<!--                        <div class="debug-info" style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px;">-->
-<!--                            <p>Debug: User permissions: {{ perms.mailmaster }}</p>-->
-<!--                            <p>Debug: Newsletter status: {{ object.status }}</p>-->
-<!--                            <p>Debug: Is active: {{ object.is_active }}</p>-->
-<!--                            <p>Debug: Is superuser: {{ user.is_superuser }}</p>-->
-<!--                        </div>-->
-<!--                        &lt;!&ndash; Конец отладочной информации &ndash;&gt;-->
                         <div class="btn-group">
                             {% if perms.mailmaster.view_message %}
                             <a href="{% url 'mailmaster:view_message' object.pk %}"
