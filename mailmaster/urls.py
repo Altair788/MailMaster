@@ -2,13 +2,26 @@ from django.urls import path
 from django.views.decorators.cache import cache_page
 
 from mailmaster.apps import MailmasterConfig
-from mailmaster.views import (MessageCreateView, MessageDeleteView,
-                              MessageDetailView, MessageListView,
-                              MessageUpdateView, NewsLetterCreateView,
-                              NewsLetterDeleteView, NewsLetterDetailView,
-                              NewsLetterListView, NewsLetterUpdateView,
-                              contact, ClientCreateView, ClientListView, ClientDetailView, ClientUpdateView,
-                              ClientDeleteView, toggle_activity, toggle_newsletter_status)
+from mailmaster.views import (
+    MessageCreateView,
+    MessageDeleteView,
+    MessageDetailView,
+    MessageListView,
+    MessageUpdateView,
+    NewsLetterCreateView,
+    NewsLetterDeleteView,
+    NewsLetterDetailView,
+    NewsLetterListView,
+    NewsLetterUpdateView,
+    contact,
+    ClientCreateView,
+    ClientListView,
+    ClientDetailView,
+    ClientUpdateView,
+    ClientDeleteView,
+    toggle_activity,
+    toggle_newsletter_status,
+)
 
 app_name = MailmasterConfig.name
 
@@ -20,7 +33,6 @@ urlpatterns = [
     path("edit/<int:pk>/", NewsLetterUpdateView.as_view(), name="update_newsletter"),
     path("delete/<int:pk>/", NewsLetterDeleteView.as_view(), name="delete_newsletter"),
     path("toggle/<int:pk>/", toggle_newsletter_status, name="toggle_newsletter_status"),
-
     path("message/", MessageListView.as_view(), name="message_list"),
     path("create/message/", MessageCreateView.as_view(), name="create_message"),
     path("message/view/<int:pk>/", MessageDetailView.as_view(), name="view_message"),
@@ -33,7 +45,5 @@ urlpatterns = [
     path("clients/view/<int:pk>/", ClientDetailView.as_view(), name="view_client"),
     path("clients/edit/<int:pk>/", ClientUpdateView.as_view(), name="update_client"),
     path("clients/delete/<int:pk>/", ClientDeleteView.as_view(), name="delete_client"),
-
-    path('activity/<int:pk>/', toggle_activity, name='toggle_activity'),
-
+    path("activity/<int:pk>/", toggle_activity, name="toggle_activity"),
 ]

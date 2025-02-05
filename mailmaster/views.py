@@ -1,22 +1,27 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.mixins import (LoginRequiredMixin,
-                                        PermissionRequiredMixin,
-                                        UserPassesTestMixin)
-from django.forms import inlineformset_factory
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    UserPassesTestMixin,
+)
+
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
-from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
-                                  UpdateView)
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 
 from mailmaster.tasks import send_mailing
-from mailmaster.forms import ClientForm, MessageForm, NewsLetterForm
+from mailmaster.forms import MessageForm, NewsLetterForm
 from mailmaster.models import Client, Message, NewsLetter
 from mailmaster.services import get_newsletter_from_cache
-from django.core.mail import send_mail
-from config import settings
 
 
 @login_required
@@ -33,14 +38,15 @@ def contact(request):
 
 #  CRUD для рассылок
 
-@method_decorator(never_cache, name='dispatch')
+
+@method_decorator(never_cache, name="dispatch")
 class NewsLetterListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = NewsLetter
     permission_required = "mailmaster.view_newsletter"
     paginate_by = 3
 
     def get_queryset(self):
-        return NewsLetter.objects.all().order_by('-created_at')
+        return NewsLetter.objects.all().order_by("-created_at")
 
 
 class NewsLetterDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
@@ -50,8 +56,8 @@ class NewsLetterDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Получаем всех клиентов, связанных с текущей рассылкой
-        context['clients'] = self.object.clients.all()
-        context['subjects'] = get_newsletter_from_cache(self.object.pk)
+        context["clients"] = self.object.clients.all()
+        context["subjects"] = get_newsletter_from_cache(self.object.pk)
         return context
 
 
@@ -105,6 +111,7 @@ class NewsLetterDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 #  функция переключения тестовой кнопки (демо) Не используется на проде
 
+
 def toggle_activity(request, pk):
     newsletter_item = get_object_or_404(NewsLetter, pk=pk)
     if newsletter_item.is_active:
@@ -119,26 +126,38 @@ def toggle_activity(request, pk):
 
 #  функция для приостановления/возобновления рассылки
 
+
 @login_required
-@permission_required('mailmaster.change_newsletter', raise_exception=True)
+@permission_required("mailmaster.change_newsletter", raise_exception=True)
 def toggle_newsletter_status(request, pk):
     newsletter = get_object_or_404(NewsLetter, pk=pk)
 
-    if newsletter.status == 'active':
-        newsletter.status = 'paused'
-        messages.warning(request, f"Рассылка '{newsletter.message.title}' приостановлена. "
-                                  f"Следующая отправка была запланирована на {newsletter.start_date.strftime('%d.%m.%Y %H:%M')}.")
-    elif newsletter.status == 'paused':
-        newsletter.status = 'active'
-        messages.success(request, f"Рассылка '{newsletter.message.title}' возобновлена. "
-                                  f"Следующая отправка запланирована на {newsletter.start_date.strftime('%d.%m.%Y %H:%M')}.")
+    if newsletter.status == "active":
+        newsletter.status = "paused"
+        messages.warning(
+            request,
+            f"Рассылка '{newsletter.message.title}' приостановлена. "
+            f"Следующая отправка была запланирована на {newsletter.start_date.strftime('%d.%m.%Y %H:%M')}.",
+        )
+    elif newsletter.status == "paused":
+        newsletter.status = "active"
+        messages.success(
+            request,
+            f"Рассылка '{newsletter.message.title}' возобновлена. "
+            f"Следующая отправка запланирована на {newsletter.start_date.strftime('%d.%m.%Y %H:%M')}.",
+        )
     else:
-        messages.error(request, f"Невозможно изменить статус рассылки '{newsletter.message.title}'. "
-                                f"Текущий статус: {newsletter.get_status_display()}.")
+        messages.error(
+            request,
+            f"Невозможно изменить статус рассылки '{newsletter.message.title}'. "
+            f"Текущий статус: {newsletter.get_status_display()}.",
+        )
     newsletter.save()
-    return redirect('mailmaster:index')
+    return redirect("mailmaster:index")
+
 
 #  CRUD for message
+
 
 class MessageCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Message
@@ -154,7 +173,7 @@ class MessageDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Получаем все рассылки, связанные с текущим сообщением (обратная связь через ForeignKey)
-        context['newsletters'] = NewsLetter.objects.filter(message=self.object)
+        context["newsletters"] = NewsLetter.objects.filter(message=self.object)
         return context
 
 
@@ -192,22 +211,21 @@ class MessageListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 #  CRUD for client
 
+
 class ClientListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Client
     permission_required = "mailmaster.view_client"
 
 
-class ClientDetailView(LoginRequiredMixin, PermissionRequiredMixin,  DetailView):
+class ClientDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = Client
     permission_required = "mailmaster.view_client"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Получаем все рассылки, связанные с текущим сообщением (обратная связь через ForeignKey)
-        context['newsletters'] = NewsLetter.objects.filter(clients=self.object)
+        context["newsletters"] = NewsLetter.objects.filter(clients=self.object)
         return context
-
-
 
 
 class ClientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):

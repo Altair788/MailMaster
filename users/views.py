@@ -2,10 +2,7 @@ import random
 import secrets
 import string
 
-from django.conf import settings
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import redirect_to_login
+
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy

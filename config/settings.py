@@ -2,7 +2,6 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from celery.schedules import crontab
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -11,12 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # load_dotenv(dotenv_path=dot_env)
 load_dotenv(BASE_DIR / ".env", override=True)
 
-
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-
 DEBUG = os.getenv("DEBUG", False) == "True"
-
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
@@ -36,7 +32,6 @@ INSTALLED_APPS = [
     "users",
     "django_crontab",
     "django_celery_beat",
-
 ]
 
 MIDDLEWARE = [
@@ -80,7 +75,6 @@ DATABASES = {
     }
 }
 
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -119,7 +113,6 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 
-
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
@@ -128,7 +121,6 @@ AUTH_USER_MODEL = "users.User"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
-
 
 LOGIN_URL = "/users/login/"
 
@@ -142,8 +134,7 @@ if CACHE_ENABLED:
         }
     }
 
-
- # ('*/10 * * * *', 'myapp.cron.send_mailing'),  # Запускать каждые 10 минут
+# ('*/10 * * * *', 'myapp.cron.send_mailing'),  # Запускать каждые 10 минут
 
 # CRONJOBS = [
 #     ('* * * * *', 'mailmaster.cron.send_mailing'),  # Запускать каждую минуту
@@ -152,7 +143,8 @@ if CACHE_ENABLED:
 
 # Настройки для Celery
 
-# URL-адрес брокера сообщений (Например, Redis, который по умолчанию работает на порту 6379)
+# URL-адрес брокера сообщений (Например, Redis,
+# который по умолчанию работает на порту 6379)
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
 
 # URL-адрес брокера результатов, также Redis
@@ -168,12 +160,12 @@ CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 
 #  чтобы задачи не смешивались с другими проектами
-CELERY_TASK_DEFAULT_QUEUE = 'cw6_queue'
+CELERY_TASK_DEFAULT_QUEUE = "cw6_queue"
 CELERY_IGNORE_RESULT = True
 #  для безопасности
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
 
 # Настройки для Celery beat
 
@@ -190,29 +182,29 @@ CELERY_BEAT_SCHEDULE = {
     # }
 }
 
-
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
+    "version": 1,
+    "disable_existing_loggers": False,
     #  обработчики
-    'handlers': {
+    "handlers": {
         #  записывает логи в файл
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': 'mail_master.log',
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "mail_master.log",
         },
         #  выводит логи в консоль
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
         },
     },
-    'loggers': {
-        'mail_master': {
-            'handlers': ['file', 'console'],
-            'level': 'INFO',
-            'propagate': True,  # передает сообщения логгера родительским логгерам
+    "loggers": {
+        "mail_master": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": True,  # передает сообщения
+            # логгера родительским логгерам
         },
     },
 }

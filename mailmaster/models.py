@@ -43,9 +43,15 @@ class NewsLetter(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     start_date = models.DateTimeField(verbose_name="Дата начала рассылки")
-    end_date = models.DateTimeField(verbose_name="Дата окончания рассылки", null=True, blank=True)
-    period = models.CharField(max_length=10, choices=PERIOD_CHOICES, verbose_name="Периодичность")
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="created", verbose_name="Статус")
+    end_date = models.DateTimeField(
+        verbose_name="Дата окончания рассылки", null=True, blank=True
+    )
+    period = models.CharField(
+        max_length=10, choices=PERIOD_CHOICES, verbose_name="Периодичность"
+    )
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default="created", verbose_name="Статус"
+    )
     sent_today = models.BooleanField(default=False)
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Создатель")
@@ -56,7 +62,9 @@ class NewsLetter(models.Model):
 
     # позволяет получить в контроллере все рассылки, связанные с текущим сообщением (обратная связь через ForeignKey)
     # context['newsletters'] = NewsLetter.objects.filter(message=self.object)
-    message = models.ForeignKey("Message", on_delete=models.CASCADE, verbose_name="Сообщение")
+    message = models.ForeignKey(
+        "Message", on_delete=models.CASCADE, verbose_name="Сообщение"
+    )
 
     def update_status_based_on_time(self):
         """
@@ -64,27 +72,37 @@ class NewsLetter(models.Model):
         """
         current_time = timezone.now()
 
-        if self.status == 'created' and current_time >= self.start_date:
+        if self.status == "created" and current_time >= self.start_date:
             # Если статус "Создана" и время начала наступило
-            self.status = 'active'
+            self.status = "active"
             self.save()
-        elif self.status in ['active', 'sent_today'] and self.end_date and current_time >= self.end_date:
+        elif (
+            self.status in ["active", "sent_today"]
+            and self.end_date
+            and current_time >= self.end_date
+        ):
             # Если статус "Активна" или "Отправлена сегодня" и время окончания прошло
-            self.status = 'closed'
+            self.status = "closed"
             self.is_active = False
             self.save()
-        elif self.status == 'sent_today' and current_time.date() > self.start_date.date():
+        elif (
+            self.status == "sent_today" and current_time.date() > self.start_date.date()
+        ):
             # Если статус "Отправлена сегодня" и наступил новый день
-            self.status = 'active'
+            self.status = "active"
             self.sent_today = False
             self.save()
-        elif self.sent_today and self.status != 'sent_today':
+        elif self.sent_today and self.status != "sent_today":
             # Если рассылка была отправлена сегодня, но статус не обновлен
-            self.status = 'sent_today'
+            self.status = "sent_today"
             self.save()
-        elif self.status == 'sent_today' and self.end_date and current_time < self.end_date:
+        elif (
+            self.status == "sent_today"
+            and self.end_date
+            and current_time < self.end_date
+        ):
             # Если статус "Отправлена сегодня" и текущая дата больше даты последнего отправления
-            self.status = 'active'
+            self.status = "active"
             self.save()
 
     def __str__(self):

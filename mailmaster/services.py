@@ -1,5 +1,3 @@
-from datetime import timezone
-
 from django.core.cache import cache
 
 from config.settings import CACHE_ENABLED
@@ -19,4 +17,3 @@ def get_newsletter_from_cache(newsletter_pk):
     else:
         newsletters_list = NewsLetter.objects.filter(id=newsletter_pk)
     return newsletters_list
-

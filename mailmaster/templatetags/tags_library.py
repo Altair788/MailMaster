@@ -15,9 +15,13 @@ def current_time(format_string):
 @register.filter(needs_autoescape=True)
 def initial_letter_filter(text, autoescape=True):
     first, other = text[:3], text[3:]
-    if autoescape:
-        esc = conditional_escape
-    else:
-        esc = lambda x: x
+
+    # Определяем функцию для экранирования
+    def esc(x):
+        return conditional_escape(x) if autoescape else x
+    # if autoescape:
+    #     esc = conditional_escape
+    # else:
+    #     esc = lambda x: x
     result = "<strong>%s</strong>%s" % (esc(first), esc(other))
     return mark_safe(result)
