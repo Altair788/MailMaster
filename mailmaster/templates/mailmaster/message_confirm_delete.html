@@ -14,10 +14,15 @@
                     <div class="card-body">
                         <form method="post">
                             {% csrf_token %}
-                            <p class="text-danger">Хотите удалить сообщение "{{ object.title }} и содержимым {{
-                                object.body|slice:"25"}} {{ "..." if object.body|length > 25 else ""}}"?</p>
+                            <p class="text-danger">Хотите удалить сообщение "{{ object.title }} с содержимым
+                                {% if object.body|length > 25 %}
+                                {{ object.body|slice:"%:25" }} ...
+                                {% else %}
+                                {{ object.body }}
+                                {% endif %}
+                                ?"</p>
                             <button type="submit" class="btn btn-danger">Подтвердить</button>
-                            <a href="{% url 'mailmaster:index' %}" class="btn btn-secondary">Отмена</a>
+                            <a href="{% url 'mailmaster:message_list' %}" class="btn btn-secondary">Отмена</a>
                         </form>
                     </div>
                 </div>
