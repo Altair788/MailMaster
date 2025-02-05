@@ -21,7 +21,7 @@ urlpatterns = [
     path("delete/<int:pk>/", NewsLetterDeleteView.as_view(), name="delete_newsletter"),
     path("toggle/<int:pk>/", toggle_newsletter_status, name="toggle_newsletter_status"),
 
-    path("message/", cache_page(5)(MessageListView.as_view()), name="message_list"),
+    path("message/", MessageListView.as_view(), name="message_list"),
     path("create/message/", MessageCreateView.as_view(), name="create_message"),
     path("message/view/<int:pk>/", MessageDetailView.as_view(), name="view_message"),
     path("message/edit/<int:pk>/", MessageUpdateView.as_view(), name="update_message"),
