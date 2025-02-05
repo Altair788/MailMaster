@@ -31,6 +31,8 @@ def contact(request):
     return render(request, "mailmaster/contact.html", context)
 
 
+#  CRUD для рассылок
+
 @method_decorator(never_cache, name='dispatch')
 class NewsLetterListView(LoginRequiredMixin, ListView):
     model = NewsLetter
@@ -46,9 +48,11 @@ class NewsLetterDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
     permission_required = "mailmaster.view_newsletter"
 
     def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
-        context_data["subjects"] = get_newsletter_from_cache(self.object.pk)
-        return context_data
+        context = super().get_context_data(**kwargs)
+        # Получаем всех клиентов, связанных с текущей рассылкой
+        context['clients'] = self.object.clients.all()
+        context['subjects'] = get_newsletter_from_cache(self.object.pk)
+        return context
 
 
 class NewsLetterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -99,6 +103,8 @@ class NewsLetterDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user.is_superuser
 
 
+#  функция переключения тестовой кнопки (демо) Не используется на проде
+
 def toggle_activity(request, pk):
     newsletter_item = get_object_or_404(NewsLetter, pk=pk)
     if newsletter_item.is_active:
@@ -110,22 +116,8 @@ def toggle_activity(request, pk):
 
     return redirect(reverse("mailmaster:index"))
 
-#
-# @login_required
-# @permission_required('mailmaster.change_newsletter', raise_exception=True)
-# def toggle_newsletter_status(request, pk):
-#     newsletter = get_object_or_404(NewsLetter, pk=pk)
-#
-#     if newsletter.status == 'active':
-#         newsletter.status = 'paused'
-#         messages.success(request, f"Рассылка '{newsletter}' приостановлена.")
-#     elif newsletter.status == 'paused':
-#         newsletter.status = 'active'
-#         messages.success(request, f"Рассылка '{newsletter}' возобновлена.")
-#     else:
-#         messages.error(request, f"Невозможно изменить статус рассылки '{newsletter}'.")
-#     newsletter.save()
-#     return redirect('mailmaster:index')
+
+#  функция для приостановления/возобновления рассылки
 
 @login_required
 @permission_required('mailmaster.change_newsletter', raise_exception=True)
@@ -148,7 +140,6 @@ def toggle_newsletter_status(request, pk):
 
 #  CRUD for message
 
-
 class MessageCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Message
     success_url = reverse_lazy("mailmaster:index")
@@ -160,12 +151,18 @@ class MessageDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView)
     model = Message
     permission_required = "mailmaster.view_message"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Получаем все рассылки, связанные с текущим сообщением (обратная связь через ForeignKey)
+        context['newsletters'] = NewsLetter.objects.filter(message=self.object)
+        return context
+
 
 class MessageUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Message
     form_class = MessageForm
     template_name = "mailmaster/message_form.html"
-    success_url = reverse_lazy("mailmaster:index")
+    success_url = reverse_lazy("mailmaster:message_list")
     permission_required = "mailmaster.change_message"
 
     def get_context_data(self, **kwargs):
@@ -182,7 +179,10 @@ class MessageUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
 
 class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Message
-    success_url = reverse_lazy("mailmaster:view_message")
+    success_url = reverse_lazy("mailmaster:message_list")
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
 
 class MessageListView(LoginRequiredMixin, ListView):
@@ -191,7 +191,6 @@ class MessageListView(LoginRequiredMixin, ListView):
 
 
 #  CRUD for client
-
 
 class ClientListView(LoginRequiredMixin, ListView):
     model = Client
