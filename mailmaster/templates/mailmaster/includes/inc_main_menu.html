@@ -7,6 +7,7 @@
         <li><a href="{% url 'mailmaster:contact' %}" class="text-white">Контакты</a></li>
         {% if user.is_authenticated %}
     <li><a href="{% url 'users:profile' %}" class="text-white">Профиль</a></li>
+    <li><a href="{% url 'mailmaster:index' %}" class="text-white">Рассылки</a></li>
     <li><a href="{% url 'mailmaster:message_list' %}" class="text-white">Сообщения</a></li>
     <li><a href="{% url 'mailmaster:client_list' %}" class="text-white">Клиенты</a></li>
     <li><a href="{% url 'users:logout' %}" class="text-white">Выйти</a></li>
