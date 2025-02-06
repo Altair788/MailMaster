@@ -58,7 +58,7 @@ class NewsLetter(models.Model):
 
     #  позволяет получить в контроллере всех клиентов, связанных с текущей рассылкой (обратная связь через ManyToMany)
     # context['clients'] = self.object.clients.all()
-    clients = models.ManyToManyField(Client, verbose_name="Клиенты")
+    clients = models.ManyToManyField(Client, verbose_name="Клиенты", related_name='newsletters')
 
     # позволяет получить в контроллере все рассылки, связанные с текущим сообщением (обратная связь через ForeignKey)
     # context['newsletters'] = NewsLetter.objects.filter(message=self.object)

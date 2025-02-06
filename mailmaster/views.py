@@ -17,6 +17,7 @@ from mailmaster.models import Client, Message, NewsLetter, EmailSendAttempt
 from mailmaster.services import get_newsletter_from_cache
 from django.core.mail import send_mail
 from config import settings
+from django.db.models import Count
 
 
 @login_required
@@ -42,6 +43,21 @@ class NewsLetterListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         return NewsLetter.objects.all().order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        #  Дя отображения на главной странице статистики
+        context = super().get_context_data(**kwargs)
+
+        context['all_newsletters'] = self.model.objects.count()
+        context['active_newsletters'] = self.model.objects.filter(status='active').count()
+
+        # Подсчет уникальных клиентов, которые связаны хотя бы с одной рассылкой
+        unique_clients = Client.objects.filter(newsletters__isnull=False).distinct().count()
+
+
+        context['unique_clients'] = unique_clients
+
+        return context
 
 
 class NewsLetterDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):

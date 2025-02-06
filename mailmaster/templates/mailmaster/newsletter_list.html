@@ -14,7 +14,14 @@
 
 <div class="container">
     <div class="col-12 mb-5">
-        <h1 class="mb-4">Список рассылок</h1>
+        <h1 class="mb-4">Общая информация о рассылках</h1>
+
+        <!-- Отображение общей информации -->
+        <p>Всего рассылок: {{ all_newsletters }}</p>
+        <p>Активные рассылки: {{ active_newsletters }}</p>
+        <p>Уникальные получатели: {{ unique_clients }}</p>
+
+<!--        <h1 class="mb-4">Список рассылок</h1>-->
         <a class="btn btn-outline-primary" href="{% url 'mailmaster:create_newsletter' %}">Добавить рассылку</a>
         <a class="btn btn-outline-primary" href="{% url 'mailmaster:create_message' %}">Добавить сообщение</a>
         <a class="btn btn-outline-primary" href="{% url 'mailmaster:create_client' %}">Добавить клиента</a>
