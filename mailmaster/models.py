@@ -34,7 +34,7 @@ class NewsLetter(models.Model):
     STATUS_CHOICES = [
         ("created", "Создана"),
         ("active", "Запущена"),
-        ("sent_today", "Отправлена сегодня"),
+        ("sent_today", "Отправлена"),
         ("closed", "Завершена"),
         ("paused", "Приостановлена"),
     ]
