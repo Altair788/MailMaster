@@ -20,7 +20,7 @@ from django.views.generic import (
 
 from mailmaster.tasks import send_mailing
 from mailmaster.forms import MessageForm, NewsLetterForm
-from mailmaster.models import Client, Message, NewsLetter
+from mailmaster.models import Client, Message, NewsLetter, EmailSendAttempt
 from mailmaster.services import get_newsletter_from_cache
 
 
@@ -223,7 +223,7 @@ class ClientDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Получаем все рассылки, связанные с текущим сообщением (обратная связь через ForeignKey)
+        # Получаем все рассылки, связанные с текущим клиентом (обратная связь через ForeignKey)
         context["newsletters"] = NewsLetter.objects.filter(clients=self.object)
         return context
 
@@ -246,6 +246,32 @@ class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Client
     success_url = reverse_lazy("mailmaster:client_list")
     permission_required = "mailmaster.view_client"
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+
+# CRUD for EmailSendAttempt
+class EmailSendAttemptListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    model = EmailSendAttempt
+    permission_required = "mailmaster.view_email_send_attempt"
+
+
+class EmailSendAttemptDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    model = EmailSendAttempt
+    permission_required = "mailmaster.view_email_send_attempt"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Получаем все рассылки, связанные с текущей сообщением (обратная связь через ForeignKey)
+        context["newsletters"] = EmailSendAttempt.objects.filter(newsletter=self.object)
+        return context
+
+
+class EmailSendAttemptDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = EmailSendAttempt
+    success_url = reverse_lazy("mailmaster:email_send_attempt_list")
+    permission_required = "mailmaster.view_email_send_attempt"
 
     def test_func(self):
         return self.request.user.is_superuser
