@@ -257,8 +257,8 @@ class EmailSendAttemptDetailView(LoginRequiredMixin, PermissionRequiredMixin, De
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Получаем все рассылки, связанные с текущей сообщением (обратная связь через ForeignKey)
-        context["newsletters"] = EmailSendAttempt.objects.filter(newsletter=self.object)
+        # Получаем все рассылки, связанные с текущей попыткой (обратная связь через ForeignKey)
+        context["newsletters"] = NewsLetter.objects.filter(attempts=self.object)
         return context
 
 
