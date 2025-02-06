@@ -71,6 +71,9 @@ class NewsLetter(models.Model):
         Автоматически обновляет статус рассылки на основе текущего времени.
         """
         current_time = timezone.now()
+        print(f"Текущее время (UTC): {current_time}")
+        print(f"Дата окончания (UTC): {self.end_date}")
+        print(f"Текущий статус: {self.status}")
 
         if self.status == "created" and current_time >= self.start_date:
             # Если статус "Создана" и время начала наступило
@@ -84,6 +87,7 @@ class NewsLetter(models.Model):
             # Если статус "Активна" или "Отправлена сегодня" и время окончания прошло
             self.status = "closed"
             self.is_active = False
+            print("Статус обновлён на 'closed'")
             self.save()
         elif (
             self.status == "sent_today" and current_time.date() > self.start_date.date()
@@ -106,7 +110,7 @@ class NewsLetter(models.Model):
             self.save()
 
     def __str__(self):
-        return f"Рассылка: {self.get_status_display()} - Начало: {self.start_date}"
+        return f"Рассылка: {self.get_status_display()} - Начало: {timezone.localtime(self.start_date)}"
 
     class Meta:
         verbose_name = "Рассылка"
