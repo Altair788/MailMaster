@@ -21,7 +21,7 @@
         <p>Активные рассылки: {{ active_newsletters }}</p>
         <p>Уникальные получатели: {{ unique_clients }}</p>
 
-<!--        <h1 class="mb-4">Список рассылок</h1>-->
+        <!--        <h1 class="mb-4">Список рассылок</h1>-->
         <a class="btn btn-outline-primary" href="{% url 'mailmaster:create_newsletter' %}">Добавить рассылку</a>
         <a class="btn btn-outline-primary" href="{% url 'mailmaster:create_message' %}">Добавить сообщение</a>
         <a class="btn btn-outline-primary" href="{% url 'mailmaster:create_client' %}">Добавить клиента</a>
@@ -44,19 +44,18 @@
                     </h5>
                     <p class="card-text">
                         <strong>Периодичность:</strong> {{ object.get_period_display }}<br>
-                        <strong>Статус:</strong> {% if object.is_active %} Активна {% else %} Неактивна {% endif %}
                     </p>
                 </div>
                 <div class="mt-auto p-3">
                     <div class="d-flex justify-content-between align-items-center">
-<!--                        &lt;!&ndash; Отладочная информация &ndash;&gt;-->
-<!--                        <div class="debug-info" style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px;">-->
-<!--                            <p>Debug: User permissions: {{ perms.mailmaster }}</p>-->
-<!--                            <p>Debug: Newsletter status: {{ object.status }}</p>-->
-<!--                            <p>Debug: Is active: {{ object.is_active }}</p>-->
-<!--                            <p>Debug: Is superuser: {{ user.is_superuser }}</p>-->
-<!--                        </div>-->
-<!--                        &lt;!&ndash; Конец отладочной информации &ndash;&gt;-->
+                        <!--                        &lt;!&ndash; Отладочная информация &ndash;&gt;-->
+                        <!--                        <div class="debug-info" style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px;">-->
+                        <!--                            <p>Debug: User permissions: {{ perms.mailmaster }}</p>-->
+                        <!--                            <p>Debug: Newsletter status: {{ object.status }}</p>-->
+                        <!--                            <p>Debug: Is active: {{ object.is_active }}</p>-->
+                        <!--                            <p>Debug: Is superuser: {{ user.is_superuser }}</p>-->
+                        <!--                        </div>-->
+                        <!--                        &lt;!&ndash; Конец отладочной информации &ndash;&gt;-->
                         <div class="btn-group">
                             {% if perms.mailmaster.view_newsletter %}
                             <a href="{% url 'mailmaster:view_newsletter' object.pk %}"
@@ -67,15 +66,16 @@
                             <a href="{% url 'mailmaster:update_newsletter' object.pk %}" type="button"
                                class="btn btn-sm btn-secondary">Редактировать</a>
 
-                            {% if object.status == 'active' or object.status == 'created' %}
+                            {% if object.status == 'active' and object.status == 'created' or object.status == 'sent_today' %}
                             <a class="btn btn-warning" href="{% url 'mailmaster:toggle_newsletter_status' object.pk %}">Приостановить</a>
                             {% elif object.status == 'paused' %}
                             <a class="btn btn-success" href="{% url 'mailmaster:toggle_newsletter_status' object.pk %}">Возобновить</a>
                             {% endif %}
 
+
                             <a class="btn btn-secondary" href="">Отправить сейчас</a>
-                            <a class="btn btn-secondary" href="">Изменить расписание</a>
-                            <a class="btn btn-outline-primary" href="">Дублировать</a>
+                            <!--                            <a class="btn btn-secondary" href="">Изменить расписание</a>-->
+                            <!--                            <a class="btn btn-outline-primary" href="">Дублировать</a>-->
                             {% endif %}
 
                             {% if user.is_superuser %}
