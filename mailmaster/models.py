@@ -143,6 +143,9 @@ class EmailSendAttempt(models.Model):
         max_length=10, verbose_name="статус попытки", choices=STATUS_CHOICES
     )
     response = models.TextField(verbose_name="ответ почтового сервера", blank=True)
+
+    # Позволяет получить в контроллере все рассылки, связанные с текущей попыткой (обратная связь через ForeignKey)
+    # context["newsletters"] = NewsLetter.objects.filter(attempts=self.object)
     newsletter = models.ForeignKey(
         NewsLetter,
         verbose_name="рассылка",
