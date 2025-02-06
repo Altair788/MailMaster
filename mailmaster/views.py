@@ -1,3 +1,6 @@
+from django.utils import timezone
+
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import (LoginRequiredMixin,
@@ -142,6 +145,7 @@ def toggle_newsletter_status(request, pk):
     newsletter = get_object_or_404(NewsLetter, pk=pk)
 
     if newsletter.status == "active":
+        # Приостановка активной рассылки
         newsletter.status = "paused"
         messages.warning(
             request,
@@ -149,19 +153,65 @@ def toggle_newsletter_status(request, pk):
             f"Следующая отправка была запланирована на {newsletter.start_date.strftime('%d.%m.%Y %H:%M')}.",
         )
     elif newsletter.status == "paused":
-        newsletter.status = "active"
-        messages.success(
+        # Возобновление приостановленной рассылки
+        if newsletter.end_date and timezone.now() >= newsletter.end_date:
+            # Нельзя возобновить рассылку, если срок завершения истёк
+            messages.error(
+                request,
+                f"Невозможно возобновить рассылку '{newsletter.message.title}', так как её срок завершения истёк.",
+            )
+        else:
+            newsletter.status = "active"
+            messages.success(
+                request,
+                f"Рассылка '{newsletter.message.title}' возобновлена. "
+                f"Следующая отправка запланирована на {newsletter.start_date.strftime('%d.%m.%Y %H:%M')}.",
+            )
+    elif newsletter.status == "created":
+
+        # Логика для статуса "Создана"
+        if timezone.now() >= newsletter.start_date:
+            # Если время начала уже наступило, переводим в "Запущена"
+            newsletter.status = "active"
+            messages.success(
+                request,
+                f"Рассылка '{newsletter.message.title}' переведена в статус 'Запущена'.",
+            )
+        else:
+            messages.warning(
+                request,
+                f"Рассылка '{newsletter.message.title}' ещё не может быть приостановлена, так как время начала не наступило.",
+            )
+    elif newsletter.status == "sent_today":
+        # Логика для статуса "Отправлена сегодня"
+        newsletter.status = "paused"
+        # messages.info(
+        #     request,
+        #     f"Рассылка '{newsletter.message.title}' уже отправлена сегодня. "
+        #     f"Она автоматически перейдёт в статус 'Запущена' завтра.",
+        # )
+        messages.warning(
             request,
-            f"Рассылка '{newsletter.message.title}' возобновлена. "
-            f"Следующая отправка запланирована на {newsletter.start_date.strftime('%d.%m.%Y %H:%M')}.",
+            f"Рассылка '{newsletter.message.title}' приостановлена. "
+            f"Следующая отправка была запланирована на {newsletter.start_date.strftime('%d.%m.%Y %H:%M')}.",
+        )
+    elif newsletter.status == "closed":
+        # Логика для статуса "Завершена"
+        messages.error(
+            request,
+            f"Невозможно изменить статус рассылки '{newsletter.message.title}', так как она завершена.",
         )
     else:
+        # Обработка неизвестных статусов
         messages.error(
             request,
             f"Невозможно изменить статус рассылки '{newsletter.message.title}'. "
             f"Текущий статус: {newsletter.get_status_display()}.",
         )
+
+
     newsletter.save()
+
     return redirect("mailmaster:index")
 
 
