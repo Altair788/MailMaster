@@ -52,7 +52,11 @@ class NewsLetterListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         context['all_newsletters'] = self.model.objects.count()
-        context['active_newsletters'] = self.model.objects.filter(status='active').count()
+
+        # Количество активных рассылок (не завершённых и не приостановленных)
+        context['active_newsletters'] = self.model.objects.exclude(
+            status__in=["closed", "paused"]
+        ).count()
 
         # Подсчет уникальных клиентов, которые связаны хотя бы с одной рассылкой
         unique_clients = Client.objects.filter(newsletters__isnull=False).distinct().count()
@@ -69,9 +73,13 @@ class NewsLetterDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Обновляем статус рассылки перед передачей в шаблон
+        self.object.update_status_based_on_time()
+
         # Получаем всех клиентов, связанных с текущей рассылкой
         context['clients'] = self.object.clients.all()
-        context['subjects'] = get_newsletter_from_cache(self.object.pk)
+        # context['subjects'] = get_newsletter_from_cache(self.object.pk)
         return context
 
 
