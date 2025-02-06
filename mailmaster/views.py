@@ -145,6 +145,31 @@ def toggle_activity(request, pk):
     return redirect(reverse("mailmaster:index"))
 
 
+@login_required
+@permission_required('mailmaster.change_newsletter', raise_exception=True)
+def send_newsletter_now(request, pk):
+    newsletter = get_object_or_404(NewsLetter, pk=pk)
+
+    # Проверяем, можно ли отправить рассылку
+    if newsletter.status in ["closed", "paused"]:
+        messages.error(
+            request,
+            f"Рассылка '{newsletter.message.title}' не может быть отправлена сейчас. Текущий статус: {newsletter.get_status_display()}."
+        )
+        return redirect("mailmaster:index")
+
+    # Устанавливаем время начала на текущее время и статус "active"
+    newsletter.start_date = timezone.now()
+    newsletter.status = "active"
+    newsletter.save()
+    #  TODO: создать отдельную таску и запускать delay
+    send_mailing()
+
+    messages.success(request, f"Рассылка '{newsletter.message.title}' запущена на отправку.")
+    return redirect("mailmaster:index")
+
+
+
 #  функция для приостановления/возобновления рассылки
 
 @login_required

@@ -67,6 +67,9 @@
                             {% if perms.mailmaster.change_newsletter %}
                             <a href="{% url 'mailmaster:update_newsletter' object.pk %}" type="button"
                                class="btn btn-sm btn-secondary">Редактировать</a>
+                            {% if object.status != 'closed' and object.status != 'paused' and object.status != 'sent_today' %}
+                                <a class="btn btn-secondary" href="{% url 'mailmaster:send_newsletter_now' object.pk %}">Отправить сейчас</a>
+                            {% endif %}
 
                             {% if object.status == 'active' and object.status == 'created' or object.status == 'sent_today' %}
                             <a class="btn btn-warning" href="{% url 'mailmaster:toggle_newsletter_status' object.pk %}">Приостановить</a>
@@ -75,7 +78,7 @@
                             {% endif %}
 
 
-                            <a class="btn btn-secondary" href="">Отправить сейчас</a>
+
                             <!--                            <a class="btn btn-secondary" href="">Изменить расписание</a>-->
                             <!--                            <a class="btn btn-outline-primary" href="">Дублировать</a>-->
                             {% endif %}
