@@ -169,3 +169,6 @@ cython_debug/
 #.idea/
 
 .notes
+
+celerybeat-schedule-shm
+celerybeat-schedule-wal
