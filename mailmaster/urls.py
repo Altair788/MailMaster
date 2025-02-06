@@ -8,7 +8,8 @@ from mailmaster.views import (MessageCreateView, MessageDeleteView,
                               NewsLetterDeleteView, NewsLetterDetailView,
                               NewsLetterListView, NewsLetterUpdateView,
                               contact, ClientCreateView, ClientListView, ClientDetailView, ClientUpdateView,
-                              ClientDeleteView, toggle_activity, toggle_newsletter_status)
+                              ClientDeleteView, toggle_activity, toggle_newsletter_status, EmailSendAttemptListView,
+                              EmailSendAttemptDetailView, EmailSendAttemptDeleteView)
 
 app_name = MailmasterConfig.name
 
@@ -35,5 +36,10 @@ urlpatterns = [
     path("clients/delete/<int:pk>/", ClientDeleteView.as_view(), name="delete_client"),
 
     path('activity/<int:pk>/', toggle_activity, name='toggle_activity'),
+
+
+    path("email_send_attempts/", cache_page(5)(EmailSendAttemptListView.as_view()), name="email_send_attempt_list"),
+    path("email_send_attempts/view/<int:pk>/", EmailSendAttemptDetailView.as_view(), name="view_email_send_attempt"),
+    path("email_send_attempts/delete/<int:pk>/", EmailSendAttemptDeleteView.as_view(), name="delete_email_send_attempt"),
 
 ]
