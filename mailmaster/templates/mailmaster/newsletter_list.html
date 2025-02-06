@@ -36,10 +36,12 @@
             <div class="card h-100 box-shadow d-flex flex-column">
                 <div class="card-body flex-grow-1">
                     <h5 class="card-title">
-                        {% if object.is_active %}
-                        {{ object.start_date }} - {{ object.get_status_display }}
+                        {% if object.status == 'closed' %}
+                        <span class="text-muted">{{ object.start_date }} - Завершена</span>
+
                         {% else %}
-                        <span class="text-muted">{{ object.start_date }} - {{ object.get_status_display }}</span>
+                        {{ object.start_date }} - {{ object.get_status_display }}
+
                         {% endif %}
                     </h5>
                     <p class="card-text">
