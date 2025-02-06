@@ -71,6 +71,8 @@ class NewsLetter(models.Model):
         Автоматически обновляет статус рассылки на основе текущего времени.
         """
         current_time = timezone.now()
+        #  TODO: предусмотреть обработку случая, когда время отправки и время
+        #   окончания схожи (до минуты) и идет возврат None.
         print(f"Текущее время (UTC): {current_time}")
         print(f"Дата окончания (UTC): {self.end_date}")
         print(f"Текущий статус: {self.status}")
