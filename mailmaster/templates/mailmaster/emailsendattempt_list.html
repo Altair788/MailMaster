@@ -1,0 +1,70 @@
+{% extends 'mailmaster/base.html' %}
+
+{% block content %}
+<style>
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; /* Добавляет отступ между кнопками */
+    }
+    .btn-group .btn {
+        width: 100%; /* Растягивает кнопки на всю ширину группы */
+    }
+</style>
+
+<div class="container">
+    <div class="col-12 mb-5">
+        <h1 class="mb-4">Попытки отправки рассылок</h1>
+    </div>
+    <div class="row">
+        {% for object in object_list %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 box-shadow d-flex flex-column">
+                <div class="card-body flex-grow-1">
+                    <p class="card-text">
+                        <strong>Дата и время последней попытки:</strong> {{ object.last_attempt_time }}<br>
+                        <strong>Статус попытки:</strong> {{ object.status }}<br>
+                        <strong>Ответ почтового сервера:</strong> {{ object.response }}<br>
+                    </p>
+                </div>
+                <div class="mt-auto p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            {% if perms.mailmaster.view_email_send_attempt %}
+                            <a href="{% url 'mailmaster:view_email_send_attempt' object.pk %}"
+                               class="btn btn-sm btn-info">Просмотреть</a>
+                            {% endif %}
+
+                            {% if user.is_superuser %}
+                            <a href="{% url 'mailmaster:delete_email_send_attempt' object.pk %}" type="button"
+                               class="btn btn-sm btn-danger">Удалить</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Пагинация -->
+    <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; Первая</a>
+            <a href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+        {% endif %}
+
+        <span class="current">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Следующая</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
+        {% endif %}
+    </span>
+    </div>
+
+</div>
+{% endblock %}
