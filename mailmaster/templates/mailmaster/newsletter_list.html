@@ -59,22 +59,27 @@
                         <!--                        </div>-->
                         <!--                        &lt;!&ndash; Конец отладочной информации &ndash;&gt;-->
                         <div class="btn-group">
-                            {% if perms.mailmaster.view_newsletter %}
+                            <!-- Проверка доступа -->
+                             {% if object.owner == request.user or user.is_superuser or perms.mailmaster.can_view_by_manager or perms.mailmaster.view_newsletter %}
                             <a href="{% url 'mailmaster:view_newsletter' object.pk %}"
                                class="btn btn-sm btn-info">Просмотреть</a>
                             {% endif %}
 
-                            {% if perms.mailmaster.change_newsletter %}
+                            {% if object.owner == request.user or user.is_superuser or perms.mailmaster.can_change_by_manager or perms.mailmaster.change_newsletter %}
                             <a href="{% url 'mailmaster:update_newsletter' object.pk %}" type="button"
                                class="btn btn-sm btn-secondary">Редактировать</a>
                             {% if object.status != 'closed' and object.status != 'paused' and object.status != 'sent_today' %}
                                 <a class="btn btn-secondary" href="{% url 'mailmaster:send_newsletter_now' object.pk %}">Отправить сейчас</a>
                             {% endif %}
 
+
+                            <!-- Проверка прав на приостановку и возобновление -->
+                            {% if object.owner == request.user or user.is_superuser or perms.mailmaster.can_change_by_manager or perms.mailmaster.change_newsletter %}
                             {% if object.status == 'active' and object.status == 'created' or object.status == 'sent_today' %}
                             <a class="btn btn-warning" href="{% url 'mailmaster:toggle_newsletter_status' object.pk %}">Приостановить</a>
                             {% elif object.status == 'paused' %}
                             <a class="btn btn-success" href="{% url 'mailmaster:toggle_newsletter_status' object.pk %}">Возобновить</a>
+                            {% endif %}
                             {% endif %}
 
 

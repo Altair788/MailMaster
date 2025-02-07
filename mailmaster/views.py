@@ -45,7 +45,10 @@ class NewsLetterListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     paginate_by = 3
 
     def get_queryset(self):
+        if self.request.user.has_perm("mailmaster.can_view_by_manager"):
+            return NewsLetter.objects.all()
         return NewsLetter.objects.filter(owner=self.request.user).order_by('-created_at')
+
 
     def get_context_data(self, **kwargs):
         #  Дя отображения на главной странице статистики
@@ -82,7 +85,9 @@ class NewsLetterDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
         return context
 
     def get_queryset(self):
-        return NewsLetter.objects.filter(owner=self.request.user)
+        if self.request.user.has_perm("mailmaster.can_view_by_manager"):
+            return NewsLetter.objects.all()
+        return NewsLetter.objects.filter(owner=self.request.user).order_by('-created_at')
 
 
 class NewsLetterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -121,7 +126,9 @@ class NewsLetterUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
         return super().form_valid(form)
 
     def get_queryset(self):
-        return NewsLetter.objects.filter(owner=self.request.user)
+        if self.request.user.has_perm("mailmaster.can_change_by_manager"):
+            return NewsLetter.objects.all()
+        return NewsLetter.objects.filter(owner=self.request.user).order_by('-created_at')
 
 
 class NewsLetterDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -271,6 +278,10 @@ class MessageDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView)
         return context
 
     def get_queryset(self):
+        # Если пользователь имеет право "can_view_by_manager", он видит все сообщения
+        if self.request.user.has_perm("mailmaster.can_view_by_manager"):
+            return Message.objects.all()
+        # Иначе пользователь видит только свои сообщения
         return Message.objects.filter(owner=self.request.user)
 
 
@@ -312,6 +323,9 @@ class MessageListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     permission_required = "mailmaster.view_message"
 
     def get_queryset(self):
+        if self.request.user.has_perm("mailmaster.can_view_by_manager"):
+            return Message.objects.all()
+        # Иначе пользователь видит только свои сообщения
         return Message.objects.filter(owner=self.request.user)
 
 
@@ -323,6 +337,8 @@ class ClientListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     permission_required = "mailmaster.view_client"
 
     def get_queryset(self):
+        if self.request.user.has_perm("mailmaster.can_view_by_manager"):
+            return Client.objects.all()
         return Client.objects.filter(owner=self.request.user)
 
 
@@ -337,6 +353,8 @@ class ClientDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         return context
 
     def get_queryset(self):
+        if self.request.user.has_perm("mailmaster.can_view_by_manager"):
+            return Client.objects.all()
         return Client.objects.filter(owner=self.request.user)
 
 class ClientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):

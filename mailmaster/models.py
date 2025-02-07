@@ -22,9 +22,9 @@ class Client(models.Model):
         verbose_name_plural = "клиенты"
         ordering = ("email",)
         #  todo: добавить права менеджеров на просмотр
-        # permissions = [
-        #     ("can_view_by_manager", "Право менеджера на просмотр"),
-        # ]
+        permissions = [
+            ("can_view_by_manager", "Право менеджера на просмотр"),
+        ]
 
 
 class NewsLetter(models.Model):
@@ -124,10 +124,10 @@ class NewsLetter(models.Model):
         verbose_name_plural = "Рассылки"
         ordering = ["-created_at"]
         #  todo: добавить права менеджеров на просмотр
-        # permissions = [
-        #     ("can_view_by_manager", "Право менеджера на просмотр"),
-        #     ("can_change_by_manager", "Право менеджера на редактирование"),
-        # ]
+        permissions = [
+            ("can_view_by_manager", "Право менеджера на просмотр"),
+            ("can_change_by_manager", "Право менеджера на редактирование"),
+        ]
 
 
 class Message(models.Model):
@@ -145,9 +145,9 @@ class Message(models.Model):
         verbose_name_plural = "сообщения"
         ordering = ("title",)
         #  todo: добавить права менеджеров на просмотр (зачем , если у меня в контроллерах есть permission_required = "mailmaster.view_newsletter"?)
-        # permissions = [
-        #     ("can_view_by_manager", "Право менеджера на просмотр"),
-        # ]
+        permissions = [
+            ("can_view_by_manager", "Право менеджера на просмотр"),
+        ]
 
 
 class EmailSendAttempt(models.Model):
