@@ -172,3 +172,5 @@ cython_debug/
 
 celerybeat-schedule-shm
 celerybeat-schedule-wal
+
+dump.rdb
