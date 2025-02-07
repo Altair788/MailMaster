@@ -197,12 +197,6 @@ celery -A config beat -l INFO
 
 ---
 
-## Дополнительные задания
-
-1. Автоматизация отправки сообщений через `django-celery-beat`.
-
----
-
 ## Автор
 
 Eduard Slobodyanik  
