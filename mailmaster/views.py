@@ -1,6 +1,5 @@
 from django.utils import timezone
 
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import (LoginRequiredMixin,
@@ -15,8 +14,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
 from mailmaster.tasks import send_mailing
-from mailmaster.forms import ClientForm, MessageForm, NewsLetterForm
-from mailmaster.models import Client, Message, NewsLetter, EmailSendAttempt
+
 from mailmaster.forms import MessageForm, NewsLetterForm
 from mailmaster.models import Client, Message, NewsLetter, EmailSendAttempt
 from mailmaster.services import get_newsletter_from_cache
@@ -62,7 +60,6 @@ class NewsLetterListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
         # Подсчет уникальных клиентов, которые связаны хотя бы с одной рассылкой
         unique_clients = Client.objects.filter(newsletters__isnull=False).distinct().count()
-
 
         context['unique_clients'] = unique_clients
 
@@ -176,7 +173,6 @@ def send_newsletter_now(request, pk):
     return redirect("mailmaster:index")
 
 
-
 #  функция для приостановления/возобновления рассылки
 
 @login_required
@@ -249,7 +245,6 @@ def toggle_newsletter_status(request, pk):
             f"Текущий статус: {newsletter.get_status_display()}.",
         )
 
-
     newsletter.save()
 
     return redirect("mailmaster:index")
@@ -301,7 +296,6 @@ class MessageUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
         return Message.objects.filter(owner=self.request.user)
 
 
-
 class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Message
     success_url = reverse_lazy("mailmaster:message_list")
@@ -313,14 +307,12 @@ class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return Message.objects.filter(owner=self.request.user)
 
 
-
 class MessageListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Message
     permission_required = "mailmaster.view_message"
 
     def get_queryset(self):
         return Message.objects.filter(owner=self.request.user)
-
 
 
 #  CRUD for client
@@ -332,7 +324,6 @@ class ClientListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         return Client.objects.filter(owner=self.request.user)
-
 
 
 class ClientDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
@@ -377,7 +368,6 @@ class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return Client.objects.filter(owner=self.request.user)
 
 
-
 # CRUD for EmailSendAttempt
 class EmailSendAttemptListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = EmailSendAttempt
@@ -392,32 +382,6 @@ class EmailSendAttemptDetailView(LoginRequiredMixin, PermissionRequiredMixin, De
         context = super().get_context_data(**kwargs)
         # Получаем все рассылки, связанные с текущей попыткой (обратная связь через ForeignKey)
         context["newsletters"] = NewsLetter.objects.filter(attempts=self.object)
-        return context
-
-
-class EmailSendAttemptDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = EmailSendAttempt
-    success_url = reverse_lazy("mailmaster:email_send_attempt_list")
-    permission_required = "mailmaster.view_email_send_attempt"
-
-    def test_func(self):
-        return self.request.user.is_superuser
-
-
-# CRUD for EmailSendAttempt
-class EmailSendAttemptListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
-    model = EmailSendAttempt
-    permission_required = "mailmaster.view_email_send_attempt"
-
-
-class EmailSendAttemptDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
-    model = EmailSendAttempt
-    permission_required = "mailmaster.view_email_send_attempt"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Получаем все рассылки, связанные с текущей сообщением (обратная связь через ForeignKey)
-        context["newsletters"] = EmailSendAttempt.objects.filter(newsletter=self.object)
         return context
 
 
