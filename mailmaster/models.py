@@ -12,6 +12,7 @@ class Client(models.Model):
     name = models.CharField(max_length=250, verbose_name="ФИО")
     email = models.EmailField(unique=True, verbose_name="почта")
     comment = models.TextField(verbose_name="комментарий", blank=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Владелец", default=1)
 
     def __str__(self):
         return f"{self.name} ({self.email})"
@@ -54,7 +55,7 @@ class NewsLetter(models.Model):
     )
     sent_today = models.BooleanField(default=False)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Создатель")
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Владелец", default=1)
 
     #  позволяет получить в контроллере всех клиентов, связанных с текущей рассылкой (обратная связь через ManyToMany)
     # context['clients'] = self.object.clients.all()
@@ -125,6 +126,7 @@ class Message(models.Model):
 
     title = models.CharField(max_length=250, verbose_name="тема письма")
     body = models.TextField(verbose_name="тело письма")
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Владелец", default=1)
 
     def __str__(self):
         return f"{self.title}"
