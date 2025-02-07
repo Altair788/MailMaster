@@ -1,0 +1,110 @@
+<!doctype html>
+{% load static %}
+{% load tags_library %}
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>{{ title }}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/album.css' %}" rel="stylesheet">
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<header>
+    <div class="collapse bg-dark" id="navbarHeader">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-8 col-md-7 py-4">
+                    <h4 class="text-white">О нас</h4>
+                    <p class="text-muted">MailMaster - Ваш надежный менеджер рассылок</p>
+                </div>
+                {% include 'mailmaster/includes/inc_main_menu.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="navbar navbar-dark bg-dark box-shadow">
+        <div class="container d-flex justify-content-between">
+            <a href="{% url 'mailmaster:index' %}" class="navbar-brand d-flex align-items-center">
+                <img src="{% static 'images/logo.jpg' %}" alt="MailMaster Logo"
+                     style="height: 40px; margin-right: 10px;">
+                <strong>MailMaster</strong>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader"
+                    aria-controls="navbarHeader" aria-expanded="false" aria-label="Переключить навигацию">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </div>
+</header>
+
+<main role="main">
+    <!-- Блок для отображения сообщений -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Конец блока сообщений -->
+    <section class="py-1 text-center container" style="margin-top: 20px;">
+        <div class="row py-lg-5">
+            <div class="col-lg-6 col-md-8 mx-auto">
+                <h1 class="fw-light">MailMaster</h1>
+                <p>
+                    <a href="tg://resolve?domain=FL_160924_bot" class="btn btn-primary my-2">Оформить заявку на
+                        подключение</a>
+                    <a href="{% url 'mailmaster:contact' %}" class="btn btn-secondary my-2">Оставить отзыв о сервисе</a>
+                </p>
+            </div>
+        </div>
+
+    </section>
+
+
+    {% block content %}
+    {% endblock %}
+
+
+</main>
+
+
+<footer class="text-muted">
+    <div class="container">
+        <p class="float-right">
+            <a href="{% url 'mailmaster:index' %}" class="btn btn-secondary my-2">На главную</a>
+        </p>
+        <p>&copy; 2024 - {% now 'Y' %}</p>
+        <p>Текущее время: {% current_time "%Y-%m-%d %H:%M:%S" %}</p>
+        <p>{{ 'BPA company'|initial_letter_filter }}</p>
+    </div>
+</footer>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/holder.min.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

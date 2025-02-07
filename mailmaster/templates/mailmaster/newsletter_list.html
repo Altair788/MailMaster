@@ -1,0 +1,130 @@
+{% extends 'mailmaster/base.html' %}
+
+{% block content %}
+<style>
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; /* Добавляет отступ между кнопками */
+    }
+    .btn-group .btn {
+        width: 100%; /* Растягивает кнопки на всю ширину группы */
+    }
+</style>
+
+<div class="container">
+    <div class="col-12 mb-5">
+        <h1 class="mb-4">Общая информация о рассылках</h1>
+
+        <!-- Отображение общей информации -->
+        <p>Всего рассылок: {{ all_newsletters }}</p>
+        <p>Активные рассылки: {{ active_newsletters }}</p>
+        <p>Уникальные получатели: {{ unique_clients }}</p>
+
+        <!--        <h1 class="mb-4">Список рассылок</h1>-->
+        <a class="btn btn-outline-primary" href="{% url 'mailmaster:create_newsletter' %}">Добавить рассылку</a>
+        <a class="btn btn-outline-primary" href="{% url 'mailmaster:create_message' %}">Добавить сообщение</a>
+        <a class="btn btn-outline-primary" href="{% url 'mailmaster:create_client' %}">Добавить клиента</a>
+        <a class="btn btn-outline-primary" href="{% url 'mailmaster:message_list' %}">Сообщения</a>
+        <a class="btn btn-outline-primary" href="{% url 'mailmaster:client_list' %}">Клиенты</a>
+        <a class="btn btn-outline-primary" href="{% url 'mailmaster:email_send_attempt_list' %}">Статистика рассылок</a>
+    </div>
+
+    <div class="row">
+        {% for object in object_list %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 box-shadow d-flex flex-column">
+                <div class="card-body flex-grow-1">
+                    <h5 class="card-title">
+                        {% if object.status == 'closed' %}
+                        <span class="text-muted">{{ object.start_date }} - Завершена</span>
+
+                        {% else %}
+                        {{ object.start_date }} - {{ object.get_status_display }}
+
+                        {% endif %}
+                    </h5>
+                    <p class="card-text">
+                        <strong>Периодичность:</strong> {{ object.get_period_display }}<br>
+                    </p>
+                </div>
+                <div class="mt-auto p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <!--                        &lt;!&ndash; Отладочная информация &ndash;&gt;-->
+                        <!--                        <div class="debug-info" style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px;">-->
+                        <!--                            <p>Debug: User permissions: {{ perms.mailmaster }}</p>-->
+                        <!--                            <p>Debug: Newsletter status: {{ object.status }}</p>-->
+                        <!--                            <p>Debug: Is active: {{ object.is_active }}</p>-->
+                        <!--                            <p>Debug: Is superuser: {{ user.is_superuser }}</p>-->
+                        <!--                        </div>-->
+                        <!--                        &lt;!&ndash; Конец отладочной информации &ndash;&gt;-->
+                        <div class="btn-group">
+                            <!-- Проверка доступа -->
+                             {% if object.owner == request.user or user.is_superuser or perms.mailmaster.can_view_newsletter_by_manager or perms.mailmaster.view_newsletter %}
+                            <a href="{% url 'mailmaster:view_newsletter' object.pk %}"
+                               class="btn btn-sm btn-info">Просмотреть</a>
+                            {% endif %}
+
+                            {% if object.owner == request.user or user.is_superuser or perms.mailmaster.can_change_newsletter_by_manager or perms.mailmaster.change_newsletter %}
+                            <a href="{% url 'mailmaster:update_newsletter' object.pk %}" type="button"
+                               class="btn btn-sm btn-secondary">Редактировать</a>
+                            {% if object.status != 'closed' and object.status != 'paused' and object.status != 'sent_today' %}
+                                <a class="btn btn-secondary" href="{% url 'mailmaster:send_newsletter_now' object.pk %}">Отправить сейчас</a>
+                            {% endif %}
+
+
+                            <!-- Проверка прав на приостановку и возобновление -->
+                            {% if object.owner == request.user or user.is_superuser or perms.mailmaster.can_change_newsletter_by_manager or perms.mailmaster.change_newsletter %}
+                            {% if object.status == 'active' and object.status == 'created' or object.status == 'sent_today' %}
+                            <a class="btn btn-warning" href="{% url 'mailmaster:toggle_newsletter_status' object.pk %}">Приостановить</a>
+                            {% elif object.status == 'paused' %}
+                            <a class="btn btn-success" href="{% url 'mailmaster:toggle_newsletter_status' object.pk %}">Возобновить</a>
+                            {% endif %}
+                            {% endif %}
+
+
+
+                            <!--                            <a class="btn btn-secondary" href="">Изменить расписание</a>-->
+                            <!--                            <a class="btn btn-outline-primary" href="">Дублировать</a>-->
+                            {% endif %}
+
+                            {% if user.is_superuser %}
+                            <a href="{% url 'mailmaster:delete_newsletter' object.pk %}" type="button"
+                               class="btn btn-sm btn-danger">Удалить</a>
+<!--                            <a class="btn btn-dark" href="">Архивировать</a>-->
+                            {% endif %}
+                        </div>
+                        <!--                        {% if object.is_active %}-->
+                        <!--                        <a class="btn btn-warning" href="{% url 'mailmaster:toggle_activity' object.pk %}">Деактивировать</a>-->
+                        <!--                        {% else %}-->
+                        <!--                        <a class="btn btn-success"-->
+                        <!--                           href="{% url 'mailmaster:toggle_activity' object.pk %}">Активировать</a>-->
+                        <!--                        {% endif %}-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Пагинация -->
+    <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; Первая</a>
+            <a href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+        {% endif %}
+
+        <span class="current">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Следующая</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
+        {% endif %}
+    </span>
+    </div>
+
+</div>
+{% endblock %}

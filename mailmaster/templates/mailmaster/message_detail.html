@@ -1,0 +1,59 @@
+{% extends 'mailmaster/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="col-12">
+        <div class="row">
+            <div class="col-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            Информация сообщения
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <tr>
+                                <th scope="row">Тема сообщения</th>
+                                <td>{{ object.title }}</td>
+                            </tr>
+                            <tr>
+                                <td>Текст сообщения</td>
+                                <td>{{ object.body }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            Связанные рассылки
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        {% if newsletters %}
+                        <ul>
+                            {% for newsletter in newsletters %}
+                            <li>
+                                Рассылка от {{ newsletter.start_date|date:"d.m.Y H:i" }}
+                                (Статус: {{ newsletter.get_status_display }})
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p><strong>Нет связанных рассылок</strong></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопка возврата -->
+        <div class="col-12 mt-3">
+            <a href="{% url 'mailmaster:message_list' %}" class="btn btn-secondary">Назад</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

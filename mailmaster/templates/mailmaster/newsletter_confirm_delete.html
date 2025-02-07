@@ -1,0 +1,29 @@
+{% extends 'mailmaster/base.html' %}
+
+
+{% block content %}
+<div class="container">
+    <div class="col-12">
+        <div class="row">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Подтверждение удаления рассылки</h3>
+                    </div>
+
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <p class="text-danger">Хотите удалить рассылку от "{{ object.created_at }} со статусом {{ object.status }} и
+                                периодичностью {{ object.period }}"?</p>
+                            <button type="submit" class="btn btn-danger">Подтвердить</button>
+                            <a href="{% url 'mailmaster:index' %}" class="btn btn-secondary">Отмена</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

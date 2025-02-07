@@ -1,0 +1,63 @@
+{% extends 'mailmaster/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="col-12">
+        <div class="row">
+            <div class="col-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            Информация о клиенте
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <tr>
+                                <th scope="row">Фамилия Имя Отчество</th>
+                                <td>{{ object.name }}</td>
+                            </tr>
+                            <tr>
+                                <td>email</td>
+                                <td>{{ object.email }}</td>
+                            </tr>
+                            <tr>
+                                <td>Комментарий</td>
+                                <td>{{ object.comment }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            Связанные рассылки
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        {% if newsletters %}
+                        <ul>
+                            {% for newsletter in newsletters %}
+                            <li>
+                                Рассылка от {{ newsletter.start_date|date:"d.m.Y H:i" }}
+                                (Статус: {{ newsletter.get_status_display }})
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p><strong>Нет связанных рассылок</strong></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопка возврата -->
+        <div class="col-12 mt-3">
+            <a href="{% url 'mailmaster:client_list' %}" class="btn btn-secondary">Назад</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

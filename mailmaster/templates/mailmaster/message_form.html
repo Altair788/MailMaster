@@ -1,0 +1,51 @@
+{% extends 'mailmaster/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <form method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    Создание сообщения
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                {% csrf_token %}
+                                {% crispy form %}
+                                <button type="submit" class="btn btn-primary btn-block mt-3">Сохранить</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    Дополнительные настройки
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                {{ formset.management_form }}
+                                {% for form in formset.forms %}
+                                {% crispy form %}
+                                {% if not forloop.last %}
+                                    <hr>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Кнопка возврата -->
+        <div class="col-12 mt-3">
+            <a href="{% url 'mailmaster:message_list' %}" class="btn btn-secondary">Назад</a>
+        </div>
+</div>
+{% endblock %}
