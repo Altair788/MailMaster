@@ -29,7 +29,7 @@
                 <div class="mt-auto p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="btn-group">
-                            {% if object.owner == request.user or user.is_superuser or perms.mailmaster.can_view_by_manager or perms.mailmaster.view_message %}
+                            {% if object.owner == request.user or user.is_superuser or perms.mailmaster.can_view_message_by_manager or perms.mailmaster.view_message %}
                             <a href="{% url 'mailmaster:view_message' object.pk %}"
                                class="btn btn-sm btn-info">Просмотреть</a>
                             {% endif %}
