@@ -45,7 +45,7 @@ class NewsLetterListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     paginate_by = 3
 
     def get_queryset(self):
-        return NewsLetter.objects.all().order_by('-created_at')
+        return NewsLetter.objects.filter(owner=self.request.user).order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         #  Дя отображения на главной странице статистики
@@ -82,6 +82,9 @@ class NewsLetterDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
         # context['subjects'] = get_newsletter_from_cache(self.object.pk)
         return context
 
+    def get_queryset(self):
+        return NewsLetter.objects.filter(owner=self.request.user)
+
 
 class NewsLetterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = NewsLetter
@@ -90,7 +93,7 @@ class NewsLetterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     permission_required = "mailmaster.add_newsletter"
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
+        form.instance.owner = self.request.user
         response = super().form_valid(form)
         send_mailing()
         return response
@@ -118,17 +121,19 @@ class NewsLetterUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
         form.save_m2m()
         return super().form_valid(form)
 
+    def get_queryset(self):
+        return NewsLetter.objects.filter(owner=self.request.user)
+
 
 class NewsLetterDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = NewsLetter
     success_url = reverse_lazy("mailmaster:index")
 
-    # def get_success_url(self):
-    #     # Получаем pk удаляемого объекта
-    #     return reverse_lazy("mailmaster:view_newsletter", args=[self.object.pk])
-
     def test_func(self):
         return self.request.user.is_superuser
+
+    def get_queryset(self):
+        return NewsLetter.objects.filter(owner=self.request.user)
 
 
 #  функция переключения тестовой кнопки (демо) Не используется на проде
@@ -268,6 +273,9 @@ class MessageDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView)
         context["newsletters"] = NewsLetter.objects.filter(message=self.object)
         return context
 
+    def get_queryset(self):
+        return Message.objects.filter(owner=self.request.user)
+
 
 class MessageUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Message
@@ -287,6 +295,10 @@ class MessageUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
         self.object = form.save()
         return super().form_valid(form)
 
+    def get_queryset(self):
+        return Message.objects.filter(owner=self.request.user)
+
+
 
 class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Message
@@ -295,10 +307,18 @@ class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         return self.request.user.is_superuser
 
+    def get_queryset(self):
+        return Message.objects.filter(owner=self.request.user)
+
+
 
 class MessageListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Message
     permission_required = "mailmaster.view_message"
+
+    def get_queryset(self):
+        return Message.objects.filter(owner=self.request.user)
+
 
 
 #  CRUD for client
@@ -307,6 +327,10 @@ class MessageListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class ClientListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Client
     permission_required = "mailmaster.view_client"
+
+    def get_queryset(self):
+        return Client.objects.filter(owner=self.request.user)
+
 
 
 class ClientDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
@@ -319,6 +343,8 @@ class ClientDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         context["newsletters"] = NewsLetter.objects.filter(clients=self.object)
         return context
 
+    def get_queryset(self):
+        return Client.objects.filter(owner=self.request.user)
 
 class ClientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Client
@@ -333,6 +359,9 @@ class ClientUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     success_url = reverse_lazy("mailmaster:client_list")
     permission_required = "mailmaster.change_client"
 
+    def get_queryset(self):
+        return Client.objects.filter(owner=self.request.user)
+
 
 class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Client
@@ -341,6 +370,9 @@ class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         return self.request.user.is_superuser
+
+    def get_queryset(self):
+        return Client.objects.filter(owner=self.request.user)
 
 
 
