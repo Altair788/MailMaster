@@ -191,7 +191,7 @@ LOGGING = {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": "mail_master.log",
+            "filename": BASE_DIR / "logs" / "mail_master.log",
         },
         #  выводит логи в консоль
         "console": {
