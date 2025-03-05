@@ -181,30 +181,30 @@ CELERY_BEAT_SCHEDULE = {
     #
     # }
 }
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    #  обработчики
-    "handlers": {
-        #  записывает логи в файл
-        "file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs" / "mail_master.log",
-        },
-        #  выводит логи в консоль
-        "console": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-        },
-    },
-    "loggers": {
-        "mail_master": {
-            "handlers": ["file", "console"],
-            "level": "INFO",
-            "propagate": True,  # передает сообщения
-            # логгера родительским логгерам
-        },
-    },
-}
+#
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     #  обработчики
+#     "handlers": {
+#         #  записывает логи в файл
+#         "file": {
+#             "level": "INFO",
+#             "class": "logging.FileHandler",
+#             "filename": BASE_DIR / "logs" / "mail_master.log",
+#         },
+#         #  выводит логи в консоль
+#         "console": {
+#             "level": "INFO",
+#             "class": "logging.StreamHandler",
+#         },
+#     },
+#     "loggers": {
+#         "mail_master": {
+#             "handlers": ["file", "console"],
+#             "level": "INFO",
+#             "propagate": True,  # передает сообщения
+#             # логгера родительским логгерам
+#         },
+#     },
+# }
